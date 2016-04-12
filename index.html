@@ -1,0 +1,656 @@
+?
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+	<meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1; charset=cp1251">
+	
+	<link rel="stylesheet" href="jq/jquery.mobile-1.4.5.min.css"/>		
+	<script src="jq/jquery-1.12.2.min.js"></script>
+	<script src="jq/jquery.mobile-1.4.5.min.js"></script>
+	<script src="jq/jquery.cookie.js"></script>
+	<link rel="stylesheet" href="css/ex.css"/>
+	<script src="js/SMS.js"></script>
+	<script src="js/Test.js"></script>
+	<script src="js/Db.js"></script>
+	<script src="js/main.js"></script>		
+	<script src="js/SmsMaster.js"></script>	
+	<script src="jq/jquery.ui.datepicker.js"></script>
+    <script src="js/Ledger.js"></script>
+    <script src="js/LP.js"></script>
+    <script src="js/Converter.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+	<link rel="stylesheet" href="jq/jquery.mobile.datepicker.css"/>	
+</head>
+<body>
+    <!-----------------------------------------YN----------------------------------->
+    <!a href="#popupDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"><!/a>
+    
+    <!-----------------------------------------MAIN--------------------------------->    
+    <style type="text/css">
+        .ui-page{
+            background-color : white !important;           
+        }
+        .ui-btn{
+            -moz-box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important; 
+            overlay : none !important;
+        }
+        .ui-dialog-contain
+        {
+            opacity: 1 !important;
+            background: #FFFFFF !important;
+        }
+        .ui-dialog .ui-header .ui-btn-icon-notext
+        {
+            display: none !important;
+        }
+        .ui-dialog-background
+        {
+            opacity: 0.5;
+            display: block !important;
+            -webkit-transition: opacity 0.5s ease-in;
+        }
+        
+        .ui-dialog-background.pop.in
+        {
+            opacity: 1;
+            -webkit-transition: opacity 0.5s ease-in;
+        }
+        .ui-dialog
+        {
+            min-height: 100% !important;
+            background: transparent !important;
+        }
+        
+    </style>
+    <script type="text/javascript">
+        // transparent-dialogue.
+        $(document).delegate('[data-role="dialog"]', 'pagebeforeshow', function (e, ui) {
+            ui.prevPage.addClass("ui-dialog-background ");
+        });
+        
+        $(document).delegate('[data-role="dialog"]', 'pagehide', function (e, ui) {
+            $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+        });
+
+
+
+        LoadBanks();
+
+    </script>
+	<script>
+        function onLoad() {            
+            if(( /(ipad|iphone|ipod|android)/i.test(navigator.userAgent) )) {
+                document.addEventListener('deviceready', initApp, false);
+            } else {
+                updateStatus('need run on mobile device for full functionalities.');
+            }            
+            
+        }
+    
+	</script>
+
+	<div data-role="page" id="mainPage" style="height: auto">	
+        <div data-role="header" data-theme="a">            
+			<h1>Money</h1>
+        </div>
+        
+        <div data-role="content">
+            <a data-role="button" onclick="SmsMaster()">Мастер импорта SMS</a>
+            <a data-role="button" onclick="Place.ShowList()">Места</a>
+			<a data-role="button" onclick="ShowAccounts()">Счета</a>
+            <a data-role="button" onclick="ShowBanks()">Банки</a>
+            <a data-role="button" onclick="Category.ShowDialog()">Диалог категории</a>
+            <a data-role="button" onclick="ShowCategoriesModal()">Выбор Категории</a>
+            <a data-role="button" onclick="Ledger.ShowWindow(0)">Форма Журнала</a>
+
+
+
+            
+			<label for="date">Date Input:</label>
+			<input type="date" name="date" id="date" value=""  />	
+            <table data-role="table" id="table"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+                <thead>
+                    <tr class="ui-bar-d">
+                        <th data-priority="1">ID</th>                       
+                        <th data-priority="1">SMS_PARAM</th>                        
+                        <th data-priority="1">SMS_VALUE</th>
+                    </tr>
+                </thead>                    
+                <tbody>
+                   
+                </tbody>
+            </table>
+            
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-add" onclick="InitDb()" data-rel="dialog">Сбросить данные</a>
+            <a data-icon="check" data-role="minus" onclick="GetSMS()" data-rel="dialog">Получить СМС</a>			
+            <a data-icon="check" data-role="minus" onclick="ShowAccounts()" data-rel="dialog">Счета</a>
+            <a data-icon="check" data-role="minus" onclick="ParseInfo()" data-rel="dialog">Распарсить инфу</a>
+            <a data-icon="check" data-role="minus" onclick="Lp()" data-rel="dialog">Load Test</a>            
+            <a data-icon="check" data-role="minus" onclick="Ledger.Check()" data-rel="dialog">Проверить журнал</a>
+            <a data-icon="check" data-role="minus" onclick="Get1()" data-rel="dialog">Модуль</a>
+						
+
+        </div>
+	</div>
+    <!-------------------------------------------------SMSMASTER---------------------------------------------->
+    <div data-role="dialog" id="SmsMaster">
+        <script>
+        
+            $(document).on("pagecreate", "#SmsMaster", function(){
+               
+                
+            });
+            $(document).on('focus', 'input', function () {                
+                $(this).closest('div').addClass('noshadow');
+                
+            });
+        </script>
+        <style type="text/css">
+            #SmsMaster .ui-content{
+                padding : 0px;
+            }
+            
+           
+            #SmsMaster .ui-navbar li a:focus{
+               -moz-box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                box-shadow: none !important; 
+            }
+            #SmsMaster .active {
+                opacity : 1 !important; 
+                background:LightGreen !important;
+                text-shadow : none !important;                                
+            }     
+            #SmsMaster .ui-btn:focus {
+                outline: 0;
+            }
+            .ui-tabs-panel {
+                padding : 10px !important;
+            }
+        </style>
+        
+        <div data-role="header" data-theme="d">
+            <h1>Dialog</h1>
+        </div>
+        <div data-role="content">  
+            <div data-role="tabs" id="SmsMasterTabs" style="height:300px; width:100%; padding:0px; ">                
+                <div data-role="navbar" class="noshadow" id = "nb">
+                    <ul>
+                        <li class="ui-disabled"><a id="FirstStep" data-theme="a" href="#one">one</a></li>
+                        <li class="ui-disabled"><a id="SecondStep" data-theme="a" href="#two">two</a></li>
+                        <li class="ui-disabled"><a id="Third" data-theme="a" href="#three">three</a></li>
+                    </ul>
+                </div>
+                <div id="one">
+					<div data-role="content">
+						<label for="basic">Дата поиска:</label>
+						<input type="date" name="importDateFrom" id="importDateFrom" value=""/>
+						<div class="ui-field-contain">
+							<label for="smsBankList" class="select">Тип:</label>
+							<select class="bankList" name="smsBankList" id="smsBankList">								
+							</select>
+						</div>
+					</div>
+					<div data-role="footer">            						
+                        <a data-icon="carat-r" class="ui-btn-forward ui-btn-right ui-active" data-iconpos="right" onclick="SelectReceiver()" data-rel="dialog">Next</a>
+					</div>     
+                </div>
+                <div id="two">
+                   <a data-role="button" onclick="LoadAcc()" data-rel="dialog">Load</a>                
+                   <div data-role="footer">            
+                        <a data-icon="carat-r" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="AnalyzeLedger()" data-rel="dialog">Next</a>
+                        <a data-icon="carat-l" class="ui-btn-back ui-btn-left" data-iconpos="left" onclick="CloseSmsMaster()" data-rel="dialog">Back</a>
+                   </div>  
+                </div>
+                <div id="three">                     
+                   <div data-role="footer">            
+                        <a data-icon="carat-r" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="CreateReceiver()" data-rel="dialog">Next3</a>
+                   </div>  
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-------------------------------------------------ACCOUNTS---------------------------------------------->
+    <div data-role="dialog" id="AccountSelect" style="height: auto">	                       
+        <div data-role="content">
+            <ul id="accountSelList">
+			</ul>
+        </div>        
+	</div>
+	<div data-role="page" id="Accounts" style="height: auto">	
+        <div data-role="header" data-theme="a">
+            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+			<h1>Money</h1>
+        </div>
+        <div data-role="content">
+            <table data-role="table" id="accountList"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+                <thead>
+                    <tr class="ui-bar-d">
+                        <th data-priority="1">Имя</th>                       
+                        <th data-priority="1">Счет</th>                        
+                        <th data-priority="1">Баланс</th>
+                    </tr>
+                </thead>                    
+                <tbody>
+                   
+                </tbody>
+            </table>    
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+        </div>
+        <div data-role="footer">            
+            <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Добавить счет</a>
+        </div>
+	</div>
+    <div data-role="dialog" id="AccountMenu">         
+        <div data-role="header" data-theme="d">
+            <h1>Счет</h1>
+        </div>
+        <div data-role="content">  
+            <label for="nameAcc">Имя:</label>
+            <input type="text" name="nameAcc" id="nameAcc" value="" data-mini="true" />
+            <label for="codeAcc">Код Счета\Карты</label>
+            <input type="text" name="codeAcc" id="codeAcc" value="" data-mini="true" />
+            <div class="ui-field-contain">
+                <label for="accTypeList" class="select" >Тип:</label>
+                <select name="accTypeList" id="accTypeList" text = "">
+                    <option>Наличные</option>
+					<option>Дебетовая карта</option>
+					<option>Кредитная карта</option>
+					<option>Мультивалютная карта</option>
+					<option>Счет</option>
+					<option>Вклад</option>
+                </select>
+            </div>
+			<div class="ui-field-contain">
+                <label for="accBankList" class="select" value = "0">Банк:</label>
+                <select class="bankList" name="accBankList" id="accBankList">
+                </select>
+            </div>
+			
+			<label for="basic">Дата открытия:</label>
+            <input type="date" name="dateAcc" id="dateAcc" value=""  />	
+            
+        </div>
+        <div data-role="footer">            
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="SetAcc()" data-rel="dialog">Next3</a>
+        </div>        
+    </div>
+    <!-------------------------------------------------BANKS---------------------------------------------->
+    <div data-role="page" id="Banks" style="height: auto">	
+        <div data-role="header" data-theme="a">
+            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+			<h1>Банки</h1>
+        </div>
+        <div data-role="content">
+            <table data-role="table" id="bankList"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+                <thead>
+                    <tr class="ui-bar-d">
+                        <th data-priority="1">Имя</th>                       
+                        <th data-priority="1">Код в СМС</th>
+                        <th data-priority="1">БИК</th>                        
+                    </tr>
+                </thead>                    
+                <tbody>                   
+                </tbody>
+            </table>    
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+        </div>
+        <div data-role="footer">            
+            <a data-icon="plus" class="ui-btn-add" onclick="AddBank()" data-rel="dialog">Новый банк</a>
+        </div>
+	</div>
+    <div data-role="dialog" id="BankMenu">               
+        <div data-role="header" data-theme="d">
+            <h1>Банк</h1>
+        </div>
+        <div data-role="content">  
+            <label for="basic">Имя:</label>
+            .<input type="text" name="nameBank" id="nameBank" value="" data-mini="true" />
+            <label for="basic">Код в смс:</label>            
+            <input type="text" name="codeBank" id="codeBank" value="" data-mini="true" />
+            <label for="basic">БИК:</label>
+            <input type="text" name="bicBank" id="bicBank" value=""  />	
+        </div>
+        <div data-role="footer">            
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="SetBank()" data-rel="dialog">ОК</a>
+        </div>        
+    </div>
+    <!----------------------------------------------CATEGORIES--------------------------------------------------------->
+    <script>
+        $(document).on("pagecreate","#Categories",function(){
+            $(".ui-collapsible h2 a").on("taphold",function(el){
+                alert(el.currentTarget.parentNode.parentNode.getAttribute('value'));
+            });
+            
+        });    
+
+    </script>
+    <style>
+            .ui-collapsible-content{
+                padding-left : 0px;
+                padding-right : 0px;
+                padding-top : 0px;
+                padding-bottom : 0px;
+                border-right: none !important;
+                border-left: none !important;
+                border-bottom: none !important; 
+                
+            }
+            .ui-collapsible{
+                margin : 0px;
+                border-top : 0px solid black !important;
+                border-right: none !important;
+                border-left: none !important;
+                //border-bottom: 1px solid black !important;
+            }
+            
+            .ui-corner-all {
+                -webkit-border-radius:.0 !important;
+                border-radius: 0 !important;
+            }
+			.categoryList{
+			    
+			}
+            .ui-collapsible h2 a{
+                    padding-left: 10px;
+					//margin-top: 10px !important;
+					border-left: 0px !important;
+					border-top: 0px !important;
+					border-right: 0px !important;
+					background-color: white !important;
+            }
+			
+			
+            .ui-collapsible h2 a:focus {
+
+                -moz-box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                box-shadow: none !important;
+            }
+            .ui-collapsible h2 a:hover {
+
+                background-color:LightSkyBlue !important;
+            } 
+    </style>
+    <div data-role="page" id="Categories" style="height: auto">	
+        
+       
+        <div data-role="header" data-theme="a">
+            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+			<h1>Категории</h1>
+        </div>
+        <div data-role="content" class="categoryContent" data-iconpos="right" data-corners="false">
+                 
+        </div>
+        <div data-role="footer">            
+            <a data-icon="plus" class="ui-btn-add" onclick="" data-rel="dialog">Сбросить</a>
+        </div>
+	</div>
+
+    
+    
+    <div data-role="dialog" id="CategoryDialog">
+        <style>
+            #CategoryDialog .ui-input-text{
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+        </style>
+        <div data-role="header" data-theme="d">
+            <h1>Категория</h1>
+        </div>
+        <div data-role="content">  
+            <label for="nameCategoryDlg">Имя</label>
+            <input type="text" name="nameCategoryDlg" id="nameCategoryDlg" value="" data-mini="true" />
+            <label for="categorySimpleList" class="select" value = "0">Родитель</label>
+            <select name="categorySimpleList" id="categorySimpleList">
+            </select>
+            <fieldset data-role="controlgroup" data-type="horizontal" id="categoryTypeDlg">
+                <legend>Знак:</legend>
+                <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="+" checked="checked">
+                <label for="radio-choice-h-2a">+</label>
+                <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="-">
+                <label for="radio-choice-h-2b">-</label>
+            </fieldset>
+
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">ОК</a>
+        </div>
+    </div>
+    <!-----------------------------------------------LEDGER-------------------------------------->
+
+    <div data-role="page" id="Ledger">
+        <!---
+        _id, _debitAcc, _creditAcc, _bank, _summa, _cur, _smsId, _categoryId,
+        _transDate,  _place, _comments, _summaRur, _balance, _balanceCur
+        ---->
+        <script>
+            $(document).on('focus', 'input', function () {
+                $(this).closest('div').addClass('noshadow');
+
+            });
+
+
+        </script>
+        <style type="text/css">
+
+            #Ledger .ui-content{
+
+                padding : 0px;
+            }
+
+            #SpendingBar a:focus {
+                background: red !important;
+            }
+
+
+            #SpendingBar .ui-btn-active{
+                background: red !important;
+                color: white !important;
+            }
+
+
+            #AddBar a:focus {
+                background: limegreen !important;
+            }
+
+            #AddBar .ui-btn-active{
+                background: limegreen !important;
+                color: white !important;
+            }
+
+             #TransferBar a:focus {
+                 background: deepskyblue !important;
+             }
+
+            #TransferBar .ui-btn-active{
+                background: deepskyblue !important;
+                color: white !important;
+            }
+            #Ledger .active {
+                opacity : 1 !important;
+                background:LightGreen !important;
+                text-shadow : none !important;
+            }
+            #Ledger .ui-btn:focus {
+                outline: 0;
+            }
+            .ui-tabs-panel {
+                padding : 20px !important;
+            }
+            #Ledger .ui-input-text{
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+            #Ledger .ui-navbar li a{
+                text-shadow:none;
+                border:none;
+            }
+            #Ledger .ui-listview{
+                margin: 0px !important;
+                height: 20px !important;
+            }
+
+            #Ledger .ui-listview li a{
+                background: white;
+                height: 20px;
+                padding: 9px;
+            }
+        </style>
+        <script>
+
+        </script>
+        <div data-role="header" data-theme="d">
+            <h1>Dialog</h1>
+        </div>
+        <div data-role="content">
+            <div data-role="tabs" id="LedgerTabs" style="width:100%; padding:0px; ">
+                <div data-role="navbar" class="noshadow" id = "operationTypeTab">
+                    <ul>
+                        <li id="SpendingBar"><a data-theme="a" href="#Spending" style="background: #ff868b; color: grey">one</a></li>
+                        <li id="AddBar"><a data-theme="a" href="#Add" style="background: #c9ff99; color: grey">two</a></li>
+                        <li id="TransferBar"><a data-theme="a" href="#Transfer" style="background: #9efffd; color: grey">three</a></li>
+                    </ul>
+                </div>
+                <!---
+                _id, _summa, _debitAcc, _creditAcc, _bank, _cur, _smsId, _categoryId,
+                _transDate,  _place, _comments, _summaRur, _balance, _balanceCur
+                ---->
+                <div id="Spending">
+
+                    <div class="ui-field-contain">
+                        <label for="journalSummaDebit">Сумма</label>
+                        <input type="text" id="journalSummaDebit" value="" data-mini="true"/>
+                    </div>
+                    <div class="ui-field-contain">
+                        <label for="journalCurDebit">Валюта:</label>
+                        <input type="text" id="journalCurDebit" value="" data-mini="true"/>
+                    </div>
+
+                    <div class="ui-field-contain">
+                        <label for="journalDebitAcc">Со счёта</label>
+                        <input type="text" id="journalDebitAcc" value="" data-mini="true"/>
+                    </div>
+                    <div class="ui-field-contain">
+                        <label for="journalBankList" class="select">Банк:</label>
+                        <select class="bankList" id="journalBankList">
+                        </select>
+                    </div>
+                    <div class="ui-field-contain">
+                        <label for="journalPlace">Место платежа:</label>
+                        <input type="text" id="journalPlace" onclick="Ledger.SetPlace()" value="" data-mini="true"/>
+                    </div>
+                    <div class="ui-field-contain">
+                        <label for="journalDate">Дата:</label>
+                        <input type="date" name="date" id="journalDate" value=""/>
+                    </div>
+
+                    <label for="journalCats">Категории:</label>
+
+                    <div class="container" style="height: 120px">
+                        <ul id="journalCats" data-role="listview">
+                            <li data-icon="false" onclick="Ledger.addCategory()"><a>Добавить</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div id="Add">
+                    <div data-role="content">
+                    </div>
+                </div>
+                <div id="Transfer">
+                    <div data-role="content">
+                        <div class="ui-field-contain">
+                            <label for="journalSummaDebitT">Сумма</label>
+                            <input type="text" id="journalSummaDebitT" value="" data-mini="true"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Ledger.Set()" data-rel="dialog">ОК</a>
+        </div>
+    </div>
+    <script>
+        LoadBanks();
+        LoadCategories();
+        $(document).on("pagecreate","#CategorySelect",function(){
+            $(".ui-collapsible h2 a").on("taphold",function(el){
+                localStorage.selCategory = el.currentTarget.parentNode.parentNode.getAttribute('value');
+                $("#CategorySelect").dialog('close');
+            });
+
+        });
+    </script>
+    <div data-role="page" id="CategorySelect">
+        <style>
+            /*
+            #CategorySelect .categoryChildList h2 a{
+                padding-left: 20px !important;
+            } */
+        </style>
+        <div data-role="content">
+            <p>Долгое нажатие для выбора</p>
+            <div class="categoryContent" id="ccC" data-iconpos="right" data-corners="false">
+
+            </div>
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="CloseCategory()" data-rel="dialog">ОК</a>
+        </div>
+    </div>
+
+    <div data-role="page" id="PlaceSelect">
+        <script>
+            Place.LoadPlaces();
+        </script>
+        <style>
+
+        </style>
+        <div data-role="content">
+            <ul data-role="listview" id="place" data-filter="true" data-input="#filterBasic-input">
+            </ul>
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" data-rel="dialog">ОК</a>
+        </div>
+    </div>
+
+    <div data-role="dialog" id="PlaceDialog">
+        <style>
+            #PlaceDialog .ui-input-text{
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+        </style>
+        <div data-role="header" data-theme="d">
+            <h1>Место</h1>
+        </div>
+        <div data-role="content">
+            <label for="namePlaceDlg">Имя</label>
+            <input type="text" name="namePlaceDlg" id="namePlaceDlg" value="" data-mini="true" />
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">ОК</a>
+        </div>
+    </div>
+
+
+</body>
+</html>.
+

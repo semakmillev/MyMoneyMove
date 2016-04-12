@@ -1,0 +1,152 @@
+
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+	<meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1; charset=cp1251">
+	<!script type="text/javascript" src="cordova.js"><!/script>
+	<link rel="stylesheet" href="jq/jquery.mobile-1.4.5.min.css"/>		
+	<script src="jq/jquery-1.12.2.min.js"></script>
+	<script src="jq/jquery.mobile-1.4.5.min.js"></script>
+	<script src="jq/jquery.cookie.js"></script>
+	<link rel="stylesheet" href="css/ex.css"/>
+	<script src="js/SMS.js"></script>
+	<script src="js/Test.js"></script>
+	<script src="js/Db.js"></script>
+	<script src="js/main.js"></script>		
+	
+	<script src="jq/jquery.ui.datepicker.js"></script>
+	<link rel="stylesheet" href="jq/jquery.mobile.datepicker.css"/>	
+</head>
+<body>
+    <style type="text/css">
+        .ui-dialog-contain
+        {
+            opacity: 1 !important;
+            background: #FFFFFF !important;
+        }
+        .ui-dialog .ui-header .ui-btn-icon-notext
+        {
+            display: none !important;
+        }
+        .ui-dialog-background
+        {
+            opacity: 0.5;
+            display: block !important;
+            -webkit-transition: opacity 0.5s ease-in;
+        }
+        
+        .ui-dialog-background.pop.in
+        {
+            opacity: 1;
+            -webkit-transition: opacity 0.5s ease-in;
+        }
+        .ui-dialog
+        {
+            min-height: 100% !important;
+            background: transparent !important;
+        }
+    </style>
+    <script type="text/javascript">
+        // transparent-dialogue.
+        $(document).delegate('[data-role="dialog"]', 'pagebeforeshow', function (e, ui) {
+            ui.prevPage.addClass("ui-dialog-background ");
+        });
+        
+        $(document).delegate('[data-role="dialog"]', 'pagehide', function (e, ui) {
+            $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+        });       
+        // transparent-dialogue.
+        
+
+    </script>
+	<script>
+/*        function onLoad() {
+            if(( /(ipad|iphone|ipod|android)/i.test(navigator.userAgent) )) {
+                document.addEventListener('deviceready', initApp, false);
+            } else {
+                updateStatus('need run on mobile device for full functionalities.');
+            }
+        }*/
+	</script>
+    
+	<div data-role="page" id="mainPage" style="height: auto">	
+        <div data-role="header" data-theme="a">            
+			<h1>Money</h1>
+        </div>
+        
+        <div data-role="content">
+            <a data-role="button" onclick="SmsMaster()">SMS Master</a>
+            <a data-role="button" onclick="GetSMS()">Get SMS</a>            
+			<a data-role="button" onclick="GetSMSInfo()">Get SMS Info</a>
+			<a data-role="button" onclick="ShowAccounts()">Accounts</a>
+            
+            
+            
+			<label for="date">Date Input:</label>
+			<input type="date" name="date" id="date" value=""  />	
+            <table data-role="table" id="table"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+                <thead>
+                    <tr class="ui-bar-d">
+                        <th data-priority="1">Счет</th>
+                        <th data-priority="1">Дата</th>                        
+                        <th data-priority="1">Сумма</th>                        
+                    </tr>
+                </thead>                    
+                <tbody>
+                   <tr class="ui-bar-d">
+                       <th data-priority="1">...3333</th>
+                       <th data-priority="1">01.01.2016</th>                        
+                       <th data-priority="1">200.00</th>                        
+                    </tr>
+                </tbody>
+            </table>
+            
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+        </div>
+        <div data-role="footer">
+            <a data-icon="check" class="ui-btn-add" onclick="InitDb()" data-rel="dialog">Сбросить данные</a>
+            <a data-icon="check" data-role="minus" onclick="GetInfo()" data-rel="dialog">Получить инфу</a>
+            <a data-icon="check" data-role="minus" onclick="ParseInfo()" data-rel="dialog">Распарсить инфу</a>            
+            <a data-icon="check" data-role="minus" onclick="CheckJournal()" data-rel="dialog">Проверить журнал</a>
+			<a data-icon="check" data-role="minus" onclick="SetCookie()" data-rel="dialog">Сделать куки</a>
+			<a data-icon="check" data-role="minus" onclick="GetCookie()" data-rel="dialog">Проверить куки</a>
+
+        </div>
+	</div>
+    
+    <div data-role="page" id="Accounts" style="height: auto">	
+        <div data-role="header" data-theme="a">
+            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+			<h1>Money</h1>
+        </div>
+        <div data-role="content">
+            <table data-role="table" id="table"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+                <thead>
+                    <tr class="ui-bar-d">
+                        <th data-priority="1">Счет</th>                       
+                        <th data-priority="1">Сумма</th>                        
+                    </tr>
+                </thead>                    
+                <tbody>
+                   <tr class="ui-bar-d">
+                       <th data-priority="1">...3333</th>                       
+                       <th data-priority="1">200.00</th>                        
+                    </tr>
+                </tbody>
+            </table>
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+        </div>
+        <div data-role="footer">            
+            <a data-icon="check" class="ui-btn-add" onclick="InitDb()" data-rel="dialog">Сбросить данные</a>
+        </div>
+	</div>
+    
+</body>
+</html>.
+
