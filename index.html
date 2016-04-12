@@ -1,4 +1,3 @@
-?
 <!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
@@ -15,6 +14,7 @@ and open the template in the editor.
 	<script src="jq/jquery.mobile-1.4.5.min.js"></script>
 	<script src="jq/jquery.cookie.js"></script>
 	<link rel="stylesheet" href="css/ex.css"/>
+    <script src="js/Converter.js"></script>
 	<script src="js/SMS.js"></script>
 	<script src="js/Test.js"></script>
 	<script src="js/Db.js"></script>
@@ -23,7 +23,7 @@ and open the template in the editor.
 	<script src="jq/jquery.ui.datepicker.js"></script>
     <script src="js/Ledger.js"></script>
     <script src="js/LP.js"></script>
-    <script src="js/Converter.js"></script>
+    <script src="js/Balance.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
 	<link rel="stylesheet" href="jq/jquery.mobile.datepicker.css"/>	
 </head>
@@ -194,7 +194,7 @@ and open the template in the editor.
                 </div>
                 <div id="one">
 					<div data-role="content">
-						<label for="basic">Дата поиска:</label>
+						<label for="importDateFrom">Дата поиска:</label>
 						<input type="date" name="importDateFrom" id="importDateFrom" value=""/>
 						<div class="ui-field-contain">
 							<label for="smsBankList" class="select">Тип:</label>
@@ -251,6 +251,7 @@ and open the template in the editor.
         </div>
         <div data-role="footer">            
             <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Добавить счет</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="Balance.TestAccInsert()" data-rel="dialog">Счета из журнала</a>
         </div>
 	</div>
     <div data-role="dialog" id="AccountMenu">         

@@ -6,16 +6,22 @@ function AnalyzeLedger(){
     arrParsedSMS.forEach(function(sms,i){
         var debit;
         var credit;
+        sms.summa = sms.summa.replaceAll(',','.');
+        sms.balance = sms.balance.replaceAll(',','.');
         if(sms.dir =='SPENDING'){
             debit = sms.acc;
             credit = 'OUT';
         }
+        if(i==arrParsedSMS.length - 1){
+            DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur,AnalyzeAcc());
+        }else{
+            DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur);
+        }
 
-        DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur);
     //    (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate,  _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur)
     //    alert(sms.bank);
     });
-    AnalyzeAcc();
+
 }
 
 function LoadAcc(){
@@ -186,14 +192,38 @@ function callBackCheckAccount(_acc, _bank, _exists)
 function AnalyzeAcc()
 {
 
-    db.transaction(function(tx){
-		
-		tx.executeSql("SELECT DISTINCT VALUE FROM SMS_PARAMS WHERE NAME = ?", ["ACC"], function(tx,result){
-			for (var i=0; i < result.rows.length; i++) { 
-				CheckAccountExistance(result.rows.item(i).VALUE, currentBank, callBackCheckAccount);               				
-				
-			}
-		}); 
+    var insertSql =
+        "INSERT INTO ACCOUNT(ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) " +
+            " SELECT MIN_L.ACC," +
+            "        '' PARENT_ACC, " +
+            "        BANK BANK, " +
+            "        '' NAME, " +
+            "        '' TYP, " +
+            "        BALANCE_CUR CUR, " +
+            "        TRANS_DATE DATE_OPEN, " +
+            "        CASE WHEN L.CREDIT_ACC = MIN_L.ACC THEN L.BALANCE - L.SUMMA_CREDIT " +
+            "             WHEN L.DEBIT_ACC  = MIN_L.ACC THEN L.BALANCE + L.SUMMA_DEBIT " +
+            "        END START_BALANCE," +
+            "        ''  COMMENTS " +
+            "   FROM LEDGER L," +
+            "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+            "          FROM (                 " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY DEBIT_ACC" +
+            "                UNION         " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY CREDIT_ACC)" +
+            "        GROUP BY ACC" +
+            "               ) MIN_L " +
+            " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+            "   AND (L.DEBIT_ACC = MIN_L.ACC OR L.CREDIT_ACC = MIN_L.ACC) " +
+            "   AND MIN_L.ACC <> 'OUT'"+
+            "   AND MIN_L.ACC NOT IN(SELECT ACC FROM ACCOUNT)";
+
+    db.transaction(function (tx) {
+        tx.executeSql(insertSql, [], function(tx, rs){}, errorHandler);
     });
 
 

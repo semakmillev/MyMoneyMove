@@ -1,3 +1,5 @@
+
+
 function _ConvertShortDate(_date)
 {
     var month = _date.getMonth() + 1;
@@ -29,14 +31,40 @@ function ShowAccounts()
     $("#accountList td").remove();
     db.transaction(function(tx){
 
-        tx.executeSql("SELECT * FROM ACCOUNT", [], function(tx,result){
+        var sqlAccount =
+
+            "              SELECT A._ID _ID," +
+            "                    A.ACC ACC," +
+            "                    L.BALANCE BALANCE " +
+            "               FROM ACCOUNT A," +
+            "               LEDGER L, " +
+            "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+            "          FROM (                 " +
+            "               SELECT MAX(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY DEBIT_ACC" +
+            "                UNION         " +
+            "               SELECT MAX(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY CREDIT_ACC)" +
+            "        GROUP BY ACC" +
+            "               ) MIN_L " +
+            " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+            "   AND (L.DEBIT_ACC = A.ACC OR L.CREDIT_ACC = A.ACC) " +
+            "   AND MIN_L.ACC = A.ACC" +
+            "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
+            ;
+
+        tx.executeSql(sqlAccount, [], function(tx,result){
             for (var i=0; i < result.rows.length; i++) {
                 //alert(result.rows.item(i).ACC);
                 var html = "";
-                html = html +'<tr onclick="EditAccount('+result.rows._ID+')">\n';
+                var acc = new String();
+                var acc = result.rows.item(i).ACC;
+                html = html +'<tr onclick="Balance.GetStartedBalance('+"'"+acc+"'"+')">\n';
                 html = html +'<td>'+result.rows.item(i)._ID+'</td>\n';
                 html = html +'<td>'+result.rows.item(i).ACC+'</td>\n';
-                html = html +'<td>'+result.rows.item(i).BANK+'</td>\n';
+                html = html +'<td>'+result.rows.item(i).BALANCE+'</td>\n';
                 html = html +'</tr>\n';
                 $("#accountList > tbody").append(html);
                 $("#accountList").table("refresh");
@@ -160,7 +188,7 @@ function LoadBanks()
                     for (var i=0; i < result.rows.length; i++) {
                       //alert(result.rows.item(i).ACC);
                       var html = "";
-                      var html = '<option value="'+result.rows.item(i).CODE+'">'+result.rows.item(i).CODE+'</option>';
+                      var html = '<option value="'+result.rows.item(i).CODE+'">'+result.rows.item(i).NAME+'</option>';
                       $('.bankList').append(html);
 
                     }

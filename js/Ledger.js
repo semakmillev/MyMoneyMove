@@ -31,6 +31,19 @@ var Ledger = {
         this.ShowWindow(_id);
         //alert('TADA');
     },
+    FillSms : function(){
+        var txt = $("#txt")[0].value;
+        db.transaction(function(tx){
+            tx.executeSql("SELECT * FROM SMS_PARAMS", [], function(tx,result){
+                for (var i=0; i < result.rows.length; i++) {
+                    txt = txt + "ID" + result.rows.item(i).SMS_ID+";"+result.rows.item(i).NAME+";"+result.rows.item(i).VALUE+";";
+
+                }
+                $("#txt").val(txt);
+            },errorHandler);
+        });
+    }
+    ,
     Check : function(){
         db.transaction(function(tx){
             tx.executeSql("SELECT * FROM LEDGER", [], function(tx,result){
@@ -67,31 +80,32 @@ var Ledger = {
                 tx.executeSql("SELECT * FROM LEDGER WHERE _ID = ?", [_id], function(tx,result){
                     for (var i=0; i < result.rows.length; i++) {
                         $("#journalDate").val(Ledger.convertDateToDiv(result.rows.item(i).TRANS_DATE));
-                        $("#Ledger").attr("_ID",result.rows.item(i)._ID);
-                        $("#Ledger").attr("DEBIT_ACC",result.rows.item(i).DEBIT_ACC);
-                        $("#Ledger").attr("CREDIT_ACC",result.rows.item(i).CREDIT_ACC);
-                        $("#Ledger").attr("BANK",result.rows.item(i).BANK);
-                        $("#Ledger").attr("SUMMA_DEBIT",result.rows.item(i).SUMMA_DEBIT);
-                        $("#Ledger").attr("CUR_DEBIT",result.rows.item(i).CUR_DEBIT);
-                        $("#Ledger").attr("SMS_ID",result.rows.item(i).SMS_ID);
-                        $("#Ledger").attr("TRANS_DATE",result.rows.item(i).TRANS_DATE);
-                        $("#Ledger").attr("TRANS_TIME",result.rows.item(i).TRANS_TIME);
-                        $("#Ledger").attr("PLACE",result.rows.item(i).PLACE);
-                        $("#Ledger").attr("COMMENTS",result.rows.item(i).COMMENTS);
-                        $("#Ledger").attr("SUMMA_CREDIT",result.rows.item(i).SUMMA_CREDIT);
-                        $("#Ledger").attr("CUR_CREDIT",result.rows.item(i).CUR_CREDIT);
-                        $("#Ledger").attr("BALANCE",result.rows.item(i).BALANCE);
-                        $("#Ledger").attr("BALANCE_CUR",result.rows.item(i).BALANCE_CUR);
-                        $('#journalCats').html('');
-
-                        $('#journalCats').append('<li data-icon="false" onclick="Ledger.addCategory()"><a>Добавить</a></li>');
-                        $('#journalCats').listview("refresh")
+                        var ledgerEl = $("#Ledger");
+                        ledgerEl.attr("_ID",result.rows.item(i)._ID);
+                        ledgerEl.attr("DEBIT_ACC",result.rows.item(i).DEBIT_ACC);
+                        ledgerEl.attr("CREDIT_ACC",result.rows.item(i).CREDIT_ACC);
+                        ledgerEl.attr("BANK",result.rows.item(i).BANK);
+                        ledgerEl.attr("SUMMA_DEBIT",result.rows.item(i).SUMMA_DEBIT);
+                        ledgerEl.attr("CUR_DEBIT",result.rows.item(i).CUR_DEBIT);
+                        ledgerEl.attr("SMS_ID",result.rows.item(i).SMS_ID);
+                        ledgerEl.attr("TRANS_DATE",result.rows.item(i).TRANS_DATE);
+                        ledgerEl.attr("TRANS_TIME",result.rows.item(i).TRANS_TIME);
+                        ledgerEl.attr("PLACE",result.rows.item(i).PLACE);
+                        ledgerEl.attr("COMMENTS",result.rows.item(i).COMMENTS);
+                        ledgerEl.attr("SUMMA_CREDIT",result.rows.item(i).SUMMA_CREDIT);
+                        ledgerEl.attr("CUR_CREDIT",result.rows.item(i).CUR_CREDIT);
+                        ledgerEl.attr("BALANCE",result.rows.item(i).BALANCE);
+                        ledgerEl.attr("BALANCE_CUR",result.rows.item(i).BALANCE_CUR);
+                        var journalCatsEl = $('#journalCats');
+                        journalCatsEl.html('');
+                        journalCatsEl.append('<li data-icon="false" onclick="Ledger.addCategory()"><a>Добавить</a></li>');
+                        journalCatsEl.listview("refresh")
                         db.transaction(function(tx){
                             tx.executeSql("SELECT * FROM LEDGER_CATEGORY WHERE L_ID = ?", [_id], function(tx,result){
                                 for (var i=0; i < result.rows.length; i++) {
                                     var cat =  result.rows.item(i).CAT_ID;
-                                    $('#journalCats').append('<li data-icon="false" id="'+Translit(cat)+'" _value = "'+cat+'"><a>'+cat+'</a></li>');
-                                    $('#journalCats').listview("refresh");
+                                    journalCatsEl.append('<li data-icon="false" id="'+Translit(cat)+'" _value = "'+cat+'"><a>'+cat+'</a></li>');
+                                    journalCatsEl.listview("refresh");
                                 }
                             },errorHandler);
                         });
@@ -131,40 +145,41 @@ var Ledger = {
 
     },
     GetFields : function(){
+        var ledgerEl = $("#Ledger");
+        ledgerEl.attr("BANK",$("#journalBankList")[0].value);
 
-        $("#Ledger").attr("BANK",$("#journalBankList")[0].value);
-
-        if($("#Ledger").attr("CREDIT_ACC")=="OUT"){
-            $("#Ledger").attr("SUMMA_DEBIT",$("#journalSummaDebit")[0].value);
-            $("#Ledger").attr("CUR_DEBIT",$("#journalCurDebit")[0].value);
-            $("#Ledger").attr("SUMMA_CREDIT",$("#journalSummaDebit")[0].value);
-            $("#Ledger").attr("CUR_CREDIT",$("#journalCurDebit")[0].value);
-            $("#Ledger").attr("DEBIT_ACC",$("#journalDebitAcc")[0].value);
-            $("#Ledger").attr("PLACE",$("#journalPlace")[0].value);
-            $("#Ledger").attr("TRANS_DATE",Ledger.convertDivToDate($("#journalDate")[0].value));
+        if(ledgerEl.attr("CREDIT_ACC")=="OUT"){
+            ledgerEl.attr("SUMMA_DEBIT",$("#journalSummaDebit")[0].value);
+            ledgerEl.attr("CUR_DEBIT",$("#journalCurDebit")[0].value);
+            ledgerEl.attr("SUMMA_CREDIT",$("#journalSummaDebit")[0].value);
+            ledgerEl.attr("CUR_CREDIT",$("#journalCurDebit")[0].value);
+            ledgerEl.attr("DEBIT_ACC",$("#journalDebitAcc")[0].value);
+            ledgerEl.attr("PLACE",$("#journalPlace")[0].value);
+            ledgerEl.attr("TRANS_DATE",Ledger.convertDivToDate($("#journalDate")[0].value));
             //alert($("#Ledger").attr("TRANS_DATE"));
         }
     },
     Set : function (){
         Ledger.GetFields();
-        var _id =  $("#Ledger").attr("_ID");
+        var ledgerEl = $("#Ledger");
+        var _id =  ledgerEl.attr("_ID");
         // (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate, _transTime, _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur)
         DatabaseUnit.SetLedger(
-            $("#Ledger").attr("_ID"),
-            $("#Ledger").attr("DEBIT_ACC"),//debit,
-            $("#Ledger").attr("CREDIT_ACC"),
-            $("#Ledger").attr("BANK"),//sms.bank,
-            $("#Ledger").attr("SUMMA_DEBIT"),
-            $("#Ledger").attr("CUR_DEBIT"),
-            $("#Ledger").attr("SMS_ID"),
-            $("#Ledger").attr("TRANS_DATE"),
-            $("#Ledger").attr("TRANS_TIME"),
-            $("#Ledger").attr("PLACE"),
+            ledgerEl.attr("_ID"),
+            ledgerEl.attr("DEBIT_ACC"),//debit,
+            ledgerEl.attr("CREDIT_ACC"),
+            ledgerEl.attr("BANK"),//sms.bank,
+            ledgerEl.attr("SUMMA_DEBIT"),
+            ledgerEl.attr("CUR_DEBIT"),
+            ledgerEl.attr("SMS_ID"),
+            ledgerEl.attr("TRANS_DATE"),
+            ledgerEl.attr("TRANS_TIME"),
+            ledgerEl.attr("PLACE"),
             '',
-            $("#Ledger").attr("SUMMA_CREDIT"),
-            $("#Ledger").attr("CUR_CREDIT"),
-            $("#Ledger").attr("BALANCE"),
-            $("#Ledger").attr("BALANCE_CUR")
+            ledgerEl.attr("SUMMA_CREDIT"),
+            ledgerEl.attr("CUR_CREDIT"),
+            ledgerEl.attr("BALANCE"),
+            ledgerEl.attr("BALANCE_CUR")
         );
 
         Ledger.SetAndDeleteCategories(_id);
