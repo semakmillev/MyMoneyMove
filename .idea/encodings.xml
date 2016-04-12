@@ -3,6 +3,7 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/MainPage.html" charset="UTF-16" />
     <file url="file://$PROJECT_DIR$/index.html" charset="windows-1251" />
+    <file url="file://$PROJECT_DIR$/js/Balance.js" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/js/Ledger.js" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/js/main.js" charset="windows-1251" />
     <file url="PROJECT" charset="UTF-8" />

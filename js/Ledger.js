@@ -1,4 +1,20 @@
 var Ledger = {
+    addZero2End : function(_st){
+        var st = _st.toString();
+        if(st.split('.').length == 1){
+            return st+'.00';
+        }else{
+            if(st.split('.')[1].length == 0){
+                return st+'00';
+            }
+            if(st.split('.')[1].length == 1){
+                return st+'0';
+            }
+            if(st.split('.')[1].length == 2){
+                return st;
+            }
+        }
+    },
     convertDateToDiv : function (st){
         var _st = st.split('.')[2]+'-'+st.split('.')[1]+'-'+st.split('.')[0];
         return _st;
@@ -46,14 +62,19 @@ var Ledger = {
     ,
     Check : function(){
         db.transaction(function(tx){
-            tx.executeSql("SELECT * FROM LEDGER", [], function(tx,result){
+            tx.executeSql("SELECT * FROM LEDGER ORDER BY DEBIT_ACC,NUM_DATE", [], function(tx,result){
                 for (var i=0; i < result.rows.length; i++) {
                     //alert(result.rows.item(i).ACC);
                     var html = "";
                     html = html +"<tr journalId='"+result.rows.item(i)._ID+"' onclick='Ledger.LedgerClick(this)'>\n";
                     html = html +"<td>"+result.rows.item(i).SMS_ID+"</td>\n";
                     html = html +"<td>"+result.rows.item(i).DEBIT_ACC+"</td>\n";
-                    html = html +"<td>"+result.rows.item(i).SUMMA_DEBIT+"</td>\n";
+                    html = html +"<td>"+Ledger.addZero2End(result.rows.item(i).SUMMA_DEBIT)+"</td>\n";
+                    //html = html +"<td>"+result.rows.item(i).KREDIT_ACC+"</td>\n";
+                    //html = html +"<td>"+Ledger.addZero2End(result.rows.item(i).SUMMA_KREDIT)+"</td>\n";
+                    html = html +"<td>"+result.rows.item(i).CREDIT_ACC+"</td>\n";
+                    html = html +"<td>"+Ledger.addZero2End(result.rows.item(i).SUMMA_CREDIT)+"</td>\n";
+                    html = html +"<td>"+Ledger.addZero2End(result.rows.item(i).BALANCE)+"</td>\n";
                     html = html +"</tr>\n";
                     $("#table > tbody").append(html);
                     $("#table").table("refresh");

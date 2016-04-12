@@ -25,7 +25,7 @@ function AnalyzeLedger(){
 }
 
 function LoadAcc(){
-   // Test.test('123');
+
     db.transaction(function (tx) {
         tx.executeSql("SELECT * FROM ACCOUNT", 
                       [], 
@@ -198,7 +198,7 @@ function AnalyzeAcc()
             "        '' PARENT_ACC, " +
             "        BANK BANK, " +
             "        '' NAME, " +
-            "        '' TYP, " +
+            "        '' TYPE, " +
             "        BALANCE_CUR CUR, " +
             "        TRANS_DATE DATE_OPEN, " +
             "        CASE WHEN L.CREDIT_ACC = MIN_L.ACC THEN L.BALANCE - L.SUMMA_CREDIT " +
@@ -223,7 +223,15 @@ function AnalyzeAcc()
             "   AND MIN_L.ACC NOT IN(SELECT ACC FROM ACCOUNT)";
 
     db.transaction(function (tx) {
-        tx.executeSql(insertSql, [], function(tx, rs){}, errorHandler);
+        tx.executeSql(insertSql, [], function(tx, result){}, errorHandler);
+    },errorHandler,function(tx){
+        //var sql = ""
+        /*
+        tx.executeSql('SELECT * FROM ACCOUNT WHERE START_BALANCE != 0', [], function(tx, result){
+            for (var i=0; i < result.rows.length; i++) {
+                //alert(result.rows.item(i).ACC);
+            }
+        }, errorHandler);*/
     });
 
 

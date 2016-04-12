@@ -61,7 +61,7 @@ function ShowAccounts()
                 var html = "";
                 var acc = new String();
                 var acc = result.rows.item(i).ACC;
-                html = html +'<tr onclick="Balance.GetStartedBalance('+"'"+acc+"'"+')">\n';
+                html = html +'<tr onclick="Balance.CheckBalanceRow('+"'"+acc+"'"+',0)">\n';
                 html = html +'<td>'+result.rows.item(i)._ID+'</td>\n';
                 html = html +'<td>'+result.rows.item(i).ACC+'</td>\n';
                 html = html +'<td>'+result.rows.item(i).BALANCE+'</td>\n';

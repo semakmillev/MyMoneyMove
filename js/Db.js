@@ -11,8 +11,21 @@ var sqlSmsParams = "CREATE TABLE IF NOT EXISTS SMS_PARAMS("+
                    
 var sqlLedger = "CREATE TABLE IF NOT EXISTS LEDGER("+
                 "_ID INTEGER primary key NOT NULL  UNIQUE, "+
-                "DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, SMS_ID, "+
-                "TRANS_DATE, TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR)";
+                "DEBIT_ACC, " +
+                "CREDIT_ACC, " +
+                "BANK, " +
+                "SUMMA_DEBIT, " +
+                "CUR_DEBIT, " +
+                "SMS_ID, "+
+                "TRANS_DATE, " +
+                "TRANS_TIME, " +
+                "NUM_DATE, " +
+                "PLACE, " +
+                "COMMENTS, " +
+                "SUMMA_CREDIT, " +
+                "CUR_CREDIT, " +
+                "BALANCE, " +
+                "BALANCE_CUR)";
 
 var sqlAccount = "CREATE TABLE IF NOT EXISTS ACCOUNT("+
                  "_ID INTEGER primary key NOT NULL UNIQUE, "+

@@ -119,9 +119,12 @@ and open the template in the editor.
             <table data-role="table" id="table"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
                 <thead>
                     <tr class="ui-bar-d">
-                        <th data-priority="1">ID</th>                       
-                        <th data-priority="1">SMS_PARAM</th>                        
-                        <th data-priority="1">SMS_VALUE</th>
+                        <th data-priority="1">SMS_ID</th>
+                        <th data-priority="1">DEBIT_ACC</th>
+                        <th data-priority="1">SUMMA_DEBIT</th>
+                        <th data-priority="1">KREDIT_ACC</th>
+                        <th data-priority="1">SUMMA_KREDIT</th>
+                        <th data-priority="1">BALANCE</th>
                     </tr>
                 </thead>                    
                 <tbody>
@@ -251,7 +254,7 @@ and open the template in the editor.
         </div>
         <div data-role="footer">            
             <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Добавить счет</a>
-            <a data-icon="plus" class="ui-btn-add" onclick="Balance.TestAccInsert()" data-rel="dialog">Счета из журнала</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="Balance.CheckBalance()" data-rel="dialog">Счета из журнала</a>
         </div>
 	</div>
     <div data-role="dialog" id="AccountMenu">         
