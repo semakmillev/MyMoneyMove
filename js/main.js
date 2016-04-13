@@ -186,7 +186,7 @@ function LoadBanks()
         db.transaction(function(tx){
                 tx.executeSql("SELECT * FROM BANK", [], function(tx,result){
                     for (var i=0; i < result.rows.length; i++) {
-                      //alert(result.rows.item(i).ACC);
+                      //alert(result.rows.item(i).CODE+' '+result.rows.item(i).NAME);
                       var html = "";
                       var html = '<option value="'+result.rows.item(i).CODE+'">'+result.rows.item(i).NAME+'</option>';
                       $('.bankList').append(html);

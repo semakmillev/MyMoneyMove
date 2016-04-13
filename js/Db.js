@@ -281,12 +281,15 @@ function InsertSMS(_id, _sender, _smsText, _smsDate)
   var dt = new Date(_smsDate);
   
   //alert(_ConvertDate(dt));
-  
-  
-  
-  
-  db.transaction(function(tx){
-	  tx.executeSql("INSERT INTO SMS_TABLE (_ID, SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", [_id,
+
+
+  //  smsList
+    var html = '<li data-icon="false" id="'+_id+'">'+_id+';'+_sender+';'+_smsDate+';'+_smsText+'</li>';
+    //alert(html);
+    $('#smsList').append(html);
+    $('#smsList').listview("refresh");
+    db.transaction(function(tx){
+	      tx.executeSql("INSERT INTO SMS_TABLE (_ID, SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", [_id,
 	                                                                                                _sender,
                                                                                                     _smsText,
                                                                                                     _ConvertDate(dt),//_ConvertDate(dt),
@@ -304,7 +307,7 @@ function InitDb()
 {
     arrSender.length = 0;
     arrParsedSMS.length = 0;
-    DropCreateTable("SMS_TABLE",sqlSmsTable);  
+    DropCreateTable("SMS_TABLE",sqlSmsTable);
     DropCreateTable("SMS_TEMPLATE",sqlSmsTemplate);
     DropCreateTable("LEDGER",sqlLedger);
     DropCreateTable("ACCOUNT",sqlAccount);
@@ -355,16 +358,16 @@ function InitDb()
    db.transaction(function (tx) {        
 
 
-       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)",["AlfaBank",
-                                                                        "ALPHA",
+       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)",["Альфа-банк",
+                                                                        "Alfa-Bank",
                                                                         "123456",
                                                                         "DD.MM.YYYY",
-                                                                        "HH24:MI:SS"]);
-       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)", ["BankMoskvy",
-																		 "BM",
+                                                                        "HH24:MI:SS"],function(){},errorHandler);
+       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)", ["Банк Москвы",
+																		 "BankMoskvy",
 																		 "123456",
                                                                          "DD.MM.YYYY",
-                                                                         "HH24:MI:SS"]);
+                                                                         "HH24:MI:SS"],function(){},errorHandler);
 
         
   }); 

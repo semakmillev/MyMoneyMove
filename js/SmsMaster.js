@@ -162,11 +162,15 @@ function SelectReceiver()
 		
     currentBank = $('#smsBankList')[0].value;
 	//listSMS(currentBank,dt);
+    SetSMSTest();
 	$('#FirstStep').removeClass('ui-btn-active');
     $('#SecondStep').addClass('ui-btn-active');
     $("#SmsMasterTabs").tabs( "option", "active", 1 );
 	//GetInfo();
-	
+    var mainHeight = $(window).height();
+    mainHeight = mainHeight - $("#SmsMasterHeader").outerHeight();
+    mainHeight = mainHeight - $("#nb").height()-$("#twoFooter").height();
+    $("#smsListContainer").height(mainHeight+"px");
 	/*
 	db.transaction(function(tx){
 		
@@ -239,7 +243,8 @@ function AnalyzeAcc()
 
 function SmsMaster()
 {
-    var mainWidth = $(window).width();
+
+    var mainHeight = $(window).height();
 	/*
 	$('#smsBankList option').remove();   
 	var html = '<option value="">123</option>';
@@ -259,9 +264,11 @@ function SmsMaster()
     $('#SecondStep').removeClass('ui-btn-active');
     $('#Third').removeClass('ui-btn-active');
     
-    $.mobile.changePage("#SmsMaster", {
-        transition: 'pop',
-        role: 'dialog'
-    });
+    $.mobile.changePage("#SmsMaster");
+    mainHeight = mainHeight - $("#SmsMasterHeader").outerHeight();
     $("#SmsMasterTabs").tabs( "option", "active", 0 );
+    $("#SmsMasterTabs").height(mainHeight+"px");
+
+    //alert(mainHeight+' '+$("#nb").height());
+
 }

@@ -1,4 +1,4 @@
-<!--
+?<!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
@@ -147,7 +147,7 @@ and open the template in the editor.
         </div>
 	</div>
     <!-------------------------------------------------SMSMASTER---------------------------------------------->
-    <div data-role="dialog" id="SmsMaster">
+    <div data-role="page" id="SmsMaster">
         <script>
         
             $(document).on("pagecreate", "#SmsMaster", function(){
@@ -181,13 +181,16 @@ and open the template in the editor.
             .ui-tabs-panel {
                 padding : 10px !important;
             }
+            #SmsMaster .ui-listview{
+                margin : 0px !important;
+            }
         </style>
         
-        <div data-role="header" data-theme="d">
+        <div data-role="header" id="SmsMasterHeader" data-theme="d">
             <h1>Dialog</h1>
         </div>
         <div data-role="content">  
-            <div data-role="tabs" id="SmsMasterTabs" style="height:300px; width:100%; padding:0px; ">                
+            <div data-role="tabs" id="SmsMasterTabs" style="width:100%; padding:0px; ">
                 <div data-role="navbar" class="noshadow" id = "nb">
                     <ul>
                         <li class="ui-disabled"><a id="FirstStep" data-theme="a" href="#one">one</a></li>
@@ -209,9 +212,15 @@ and open the template in the editor.
                         <a data-icon="carat-r" class="ui-btn-forward ui-btn-right ui-active" data-iconpos="right" onclick="SelectReceiver()" data-rel="dialog">Next</a>
 					</div>     
                 </div>
-                <div id="two">
-                   <a data-role="button" onclick="LoadAcc()" data-rel="dialog">Load</a>                
-                   <div data-role="footer">            
+                <div id="two" style="width:100%; padding:0px !important;">
+                    <div data-role="content">
+                        <div class="container" id="smsListContainer">
+                            <ul data-role="listview" id="smsList" style="marging:0px !important;">
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div data-role="footer" id="twoFooter">
                         <a data-icon="carat-r" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="AnalyzeLedger()" data-rel="dialog">Next</a>
                         <a data-icon="carat-l" class="ui-btn-back ui-btn-left" data-iconpos="left" onclick="CloseSmsMaster()" data-rel="dialog">Back</a>
                    </div>  
@@ -283,7 +292,7 @@ and open the template in the editor.
                 </select>
             </div>
 			
-			<label for="basic">Дата открытия:</label>
+			<label for="dateAcc">Дата открытия:</label>
             <input type="date" name="dateAcc" id="dateAcc" value=""  />	
             
         </div>
@@ -320,11 +329,11 @@ and open the template in the editor.
             <h1>Банк</h1>
         </div>
         <div data-role="content">  
-            <label for="basic">Имя:</label>
+            <label for="nameBank">Имя:</label>
             .<input type="text" name="nameBank" id="nameBank" value="" data-mini="true" />
-            <label for="basic">Код в смс:</label>            
+            <label for="codeBank">Код в смс:</label>
             <input type="text" name="codeBank" id="codeBank" value="" data-mini="true" />
-            <label for="basic">БИК:</label>
+            <label for="bicBank">БИК:</label>
             <input type="text" name="bicBank" id="bicBank" value=""  />	
         </div>
         <div data-role="footer">            

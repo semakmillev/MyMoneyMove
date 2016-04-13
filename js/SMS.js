@@ -60,7 +60,7 @@ function listSMS(_address,_date) {
         var sms = data[i];
 		//alert(sms)
         smsList.push(sms);
-		alert(sms._id);
+		//alert(sms._id);
 		InsertSMS(sms._id,sms.address,sms.body,sms.date);
 		
 		

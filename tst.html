@@ -5,38 +5,18 @@
 	<meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="width=device-width, initial-scale=1; charset=cp1251">
 	<!script type="text/javascript" src="cordova.js"><!/script>
-	<link rel="stylesheet" href="jq/jquery.mobile-1.4.5.min.css"/>		
-	<script src="jq/jquery-1.12.2.min.js"></script>
-	<script src="jq/jquery.mobile-1.4.5.min.js"></script>
-	<script src="jq/jquery.cookie.js"></script>
-	<link rel="stylesheet" href="css/ex.css"/>
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1; charset=cp1251">
 
+    <link rel="stylesheet" href="jq/jquery.mobile-1.4.5.min.css"/>
+    <script src="jq/jquery-1.12.2.min.js"></script>
+    <script src="jq/jquery.mobile-1.4.5.min.js"></script>
+    <script src="jq/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="css/ex.css"/>
 <style>
-.noshadow {
-    -moz-box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-}
-
 </style>
 <script>
-$(document).on('focus', 'input', function () {
 
-    if ($(this).closest('div').hasClass('ui-input-search')) {
-        $(this).closest('div').addClass('noshadow');
-    }
-    if ($(this).closest('div').hasClass('ui-input-search')) {
-        $(this).closest('div').addClass('noshadow');
-    }
-});
-
-// Remove shadow from other input types
-$(document).on('focus', 'input', function () {
-
-    if ($(this).hasClass('ui-input-text') && $(this).attr('type') == 'number') {
-        $(this).closest('div').addClass('noshadow');
-    }
-});
 </script>
 </head>
 <body>
@@ -46,31 +26,9 @@ $(document).on('focus', 'input', function () {
     </div>
     <!-- /header -->
     <div data-role="content">
-        <input type="text" value="text" />
-        <p>Shadow removed - search input</p>
-        <input type="search" placeholder="Search.." value="" />
-        <p>Shadow removed - number input</p>
-        <input type="number" value="12345" />
-        <input type="password" value="foo" />
-        <input type="email" value="email@me.net" />
-        <input type="date" />
-        <div/>
-        <a id="test2" data-role="button" href="#2" data-theme="a">two</a>
-        <div data-role="tabs" id="SmsMasterTabs" class="stop" style="height:300px; width:100%; padding:0px; ">    
-            <div data-role="navbar" class="noshadow">
-                    <ul class="noshadow">
-                        <li class="noshadow"><a id="test1" href="#1" data-theme="a" class="ui-disabled noshadow">one</a></li>
-                        <li class="ui-disabled"><a id="test2" href="#2" data-theme="a" >two</a></li>
-                        <li><a id="test3" href="#3" data-theme="a" class="ui-disabled">three</a></li>
-                    </ul>
-            </div>
-            <div id="one" >                                     
-            </div>
-            <div id="two" >                    
-            </div>
-            <div id="three" >                     
-            </div>
-        </div>    
+        <ul data-role="listview">
+            <li data-icon="false">1234;Alfa;Vidacha babla 2889.99 RUR</li>
+        </ul>
     </div>
     <!-- /content -->
   </div>
