@@ -153,6 +153,7 @@ var Ledger = {
 
             $("#journalSummaDebit").val($("#Ledger").attr("SUMMA_DEBIT"));
             $("#journalDebitAcc").val($("#Ledger").attr("DEBIT_ACC"));
+            $("#journalCreditAcc").val($("#Ledger").attr("CREDIT_ACC"));
             $("#journalPlace").val($("#Ledger").attr("PLACE"));
             $("#journalCurDebit").val($("#Ledger").attr("CUR_DEBIT"));
             $("#journalDate").val(Ledger.convertDateToDiv($("#Ledger").attr("TRANS_DATE")));

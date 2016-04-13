@@ -55,6 +55,7 @@ function listSMS(_address,_date) {
     			//updateData( JSON.stringify(data) );
     			
     var html = "";
+
     if(Array.isArray(data)) {
       for(var i in data) {
         var sms = data[i];

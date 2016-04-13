@@ -1,5 +1,7 @@
 
 
+
+
 function _ConvertShortDate(_date)
 {
     var month = _date.getMonth() + 1;
@@ -54,7 +56,13 @@ function ShowAccounts()
             "   AND MIN_L.ACC = A.ACC" +
             "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
             ;
+        /*  var sqlAccount =
 
+                "              SELECT A._ID _ID," +
+                "                    A.ACC ACC," +
+                "                    0 BALANCE " +
+                "               FROM ACCOUNT A";
+        */
         tx.executeSql(sqlAccount, [], function(tx,result){
             for (var i=0; i < result.rows.length; i++) {
                 //alert(result.rows.item(i).ACC);
@@ -384,3 +392,25 @@ function GetSMSInfo()
                 }); });     
 }
 
+var Main = {
+    SetTemplate : function(el){
+        var txt = $(el.currentTarget).text().split('^')[3];
+        var bank = $(el.currentTarget).attr("bank");
+         //alert(bank);
+        $.mobile.changePage("#templateDlg", {
+            transition: 'pop',
+            role: 'dialog'
+        });
+        $("#templateText").val(txt);
+        $("#templateBank").val(bank);
+        $("#templateBank").prop("readonly", true);
+    },
+    AddTemplate : function(){
+      var txt = $("#templateText")[0].value;
+      var bank = $("#templateBank")[0].value;
+      var type = $("#templateType")[0].value;
+      DatabaseUnit.SetTemplate(bank,txt,type,GetInfo());
+      $("#templateDlg").dialog('close');
+
+    }
+}

@@ -1,4 +1,4 @@
-?<!--
+<!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
@@ -159,6 +159,10 @@ and open the template in the editor.
                 
             });
         </script>
+        <script>
+
+
+        </script>
         <style type="text/css">
             #SmsMaster .ui-content{
                 padding : 0px;
@@ -178,16 +182,36 @@ and open the template in the editor.
             #SmsMaster .ui-btn:focus {
                 outline: 0;
             }
-            .ui-tabs-panel {
-                padding : 10px !important;
+            #SmsMaster .ui-tabs-panel {
+                padding : 0px;
             }
+            #SmsMaster .contentPanel {
+                padding : 20px;
+            }
+            #SmsMaster .ui-tabs-panel {
+                padding : 0px !important;
+            }
+
             #SmsMaster .ui-listview{
                 margin : 0px !important;
+            }
+            #SmsMasterHeader{
+                margin : 0px !important;
+            }
+            #SmsMaster .bottomButton{
+                position:absolute;
+                bottom:0px;
+                margin: 0px;
+                width:100%;
+            }
+            #SmsMaster .parsed{
+                background: greenyellow !important;
             }
         </style>
         
         <div data-role="header" id="SmsMasterHeader" data-theme="d">
             <h1>Dialog</h1>
+            <a data-icon="back" data-rel="back" onclick="AnalyzeLedger()">Назад</a>
         </div>
         <div data-role="content">  
             <div data-role="tabs" id="SmsMasterTabs" style="width:100%; padding:0px; ">
@@ -199,7 +223,7 @@ and open the template in the editor.
                     </ul>
                 </div>
                 <div id="one">
-					<div data-role="content">
+					<div data-role="content" class="contentPanel">
 						<label for="importDateFrom">Дата поиска:</label>
 						<input type="date" name="importDateFrom" id="importDateFrom" value=""/>
 						<div class="ui-field-contain">
@@ -208,9 +232,10 @@ and open the template in the editor.
 							</select>
 						</div>
 					</div>
-					<div data-role="footer">            						
+                    <a data-role="button" class="bottomButton" onclick="SelectReceiver()">Форма Журнала</a>
+					<!--div data-role="footer">
                         <a data-icon="carat-r" class="ui-btn-forward ui-btn-right ui-active" data-iconpos="right" onclick="SelectReceiver()" data-rel="dialog">Next</a>
-					</div>     
+					</div-->
                 </div>
                 <div id="two" style="width:100%; padding:0px !important;">
                     <div data-role="content">
@@ -220,10 +245,7 @@ and open the template in the editor.
                             </ul>
                         </div>
                     </div>
-                    <div data-role="footer" id="twoFooter">
-                        <a data-icon="carat-r" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="AnalyzeLedger()" data-rel="dialog">Next</a>
-                        <a data-icon="carat-l" class="ui-btn-back ui-btn-left" data-iconpos="left" onclick="CloseSmsMaster()" data-rel="dialog">Back</a>
-                   </div>  
+                    <a data-role="button" id="btnAnalize" class="bottomButton" onclick="GetInfo()">Анализировать</a>
                 </div>
                 <div id="three">                     
                    <div data-role="footer">            
@@ -232,6 +254,29 @@ and open the template in the editor.
                 </div>
                 
             </div>
+        </div>
+    </div>
+    <!------------------------------------------------TEMPLATES---------------------------------------------->
+    <div data-role="dialog" id="templateDlg" style="height: auto">
+
+        <div data-role="content">
+            <div class="ui-field-contain">
+                <label for="templateBank">Банк</label>
+                <input type="text" id="templateBank" value=""/>
+            </div>
+            <textarea id=templateText>
+
+            </textarea>
+            <select id="templateType">
+                <option value = "SPENDING">Расход</option>
+                <option value = "ADD">Приход</option>
+                <option value = "TRANSFER">Перевод</option>
+                <option value = "CASHIN">Внесение наличных</option>
+                <option value = "CASHOUT">Выдача наличных</option>
+            </select>
+        </div>
+        <div data-role="footer">
+            <a data-icon="plus" class="ui-btn-add" onclick="Main.AddTemplate()" data-rel="dialog">Добавить шаблон</a>
         </div>
     </div>
     <!-------------------------------------------------ACCOUNTS---------------------------------------------->
@@ -462,7 +507,7 @@ and open the template in the editor.
 
             #Ledger .ui-content{
 
-                padding : 0px;
+                padding : 10px;
             }
 
             #SpendingBar a:focus {
@@ -530,14 +575,6 @@ and open the template in the editor.
             <h1>Dialog</h1>
         </div>
         <div data-role="content">
-            <div data-role="tabs" id="LedgerTabs" style="width:100%; padding:0px; ">
-                <div data-role="navbar" class="noshadow" id = "operationTypeTab">
-                    <ul>
-                        <li id="SpendingBar"><a data-theme="a" href="#Spending" style="background: #ff868b; color: grey">one</a></li>
-                        <li id="AddBar"><a data-theme="a" href="#Add" style="background: #c9ff99; color: grey">two</a></li>
-                        <li id="TransferBar"><a data-theme="a" href="#Transfer" style="background: #9efffd; color: grey">three</a></li>
-                    </ul>
-                </div>
                 <!---
                 _id, _summa, _debitAcc, _creditAcc, _bank, _cur, _smsId, _categoryId,
                 _transDate,  _place, _comments, _summaRur, _balance, _balanceCur
@@ -557,6 +594,11 @@ and open the template in the editor.
                         <label for="journalDebitAcc">Со счёта</label>
                         <input type="text" id="journalDebitAcc" value="" data-mini="true"/>
                     </div>
+                    <div class="ui-field-contain">
+                        <label for="journalDebitAcc">На счёт</label>
+                        <input type="text" id="journalCreditAcc" value="" data-mini="true"/>
+                    </div>
+
                     <div class="ui-field-contain">
                         <label for="journalBankList" class="select">Банк:</label>
                         <select class="bankList" id="journalBankList">
@@ -580,20 +622,6 @@ and open the template in the editor.
                     </div>
 
                 </div>
-                <div id="Add">
-                    <div data-role="content">
-                    </div>
-                </div>
-                <div id="Transfer">
-                    <div data-role="content">
-                        <div class="ui-field-contain">
-                            <label for="journalSummaDebitT">Сумма</label>
-                            <input type="text" id="journalSummaDebitT" value="" data-mini="true"/>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </div>
         <div data-role="footer">
             <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Ledger.Set()" data-rel="dialog">ОК</a>

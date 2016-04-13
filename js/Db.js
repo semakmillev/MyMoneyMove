@@ -93,41 +93,7 @@ function BankSMS() {
     dir:""};
     return BankSMS;
 }
-function TestModule(){
-    var _text = "5*8022; Pokupka; Uspeshno; Summa: 59,00 RUR; Ostatok: 12941,08 RUR; RU/MOSCOW/CITYSTORE-CHAPLYGINA; 28.03.2016 15:38:40";
-    var _temp = "%ACC%; Pokupka; Uspeshno; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %PLACE%; %TRANS_DATE% %TRANS_TIME%";
-    //var resPlace = _temp.replaceAll('%PLACE%','\\b.*\\b').replaceAll(')','\\)');
-    var resPlace = _temp.replaceAll(/%\w*%/ig,'\\b[\\w|\\.|\\*|\\,|\\:|\\-|\\/]*\\b').replaceAll(')','\\)');
-    var place = _temp.indexOf('%'+'PLACE'+'%');
-    var TemplateOut = _temp.substring(0,place);
-    var TemplateIn = _temp.substring(0,place+('%'+'PLACE'+'%').length);
-    var RegOut = new RegExp(prepareSearch(TemplateOut),'g');
-    var RegIn = new RegExp(prepareSearch(TemplateIn),'g');
-    //alert(RegOut);
-    //alert(RegIn);
-    var res =_text.substr(_text.match(RegOut)[0].length, _text.match(RegIn)[0].length - _text.match(RegOut)[0].length);
-    alert(res);
-        /*
-    }
-    function GetFieldValue(_text, _template, _fieldName)
-    {
 
-        var place = _template.indexOf('%'+_fieldName+'%');
-        var TemplateOut = _template.substring(0,place);
-        var TemplateIn = _template.substring(0,place+('%'+_fieldName+'%').length);
-        var RegOut = new RegExp(prepareSearch(TemplateOut),'g');
-        var RegIn = new RegExp(prepareSearch(TemplateIn),'g');
-
-        var res =_text.substr(_text.match(RegOut)[0].length, _text.match(RegIn)[0].length - _text.match(RegOut)[0].length);
-        return res;
-    }
-    function SetSmsParam(_smsId,_name,_value){
-        db.transaction(function (tx) {
-            tx.executeSql("INSERT INTO SMS_PARAMS (SMS_ID,NAME,VALUE) VALUES (?,?,?)", [_smsId,_name,_value]);
-        });
-    }    */
-
-}
 
 String.prototype.replaceAll = function(target, replacement) {
   return this.split(target).join(replacement);
@@ -284,10 +250,16 @@ function InsertSMS(_id, _sender, _smsText, _smsDate)
 
 
   //  smsList
-    var html = '<li data-icon="false" id="'+_id+'">'+_id+';'+_sender+';'+_smsDate+';'+_smsText+'</li>';
+    var html = '<li data-icon="false" class="parsing-sms" id="sms'+_id+'" bank="'+_sender+'">%'+_id+'^'+_sender+'^'+_smsDate+'^'+_smsText+'</li>';
     //alert(html);
+
     $('#smsList').append(html);
     $('#smsList').listview("refresh");
+    try{
+        $("#sms"+_id).on("taphold",Main.SetTemplate);
+    }catch(err) {
+        alert(err)
+    }
     db.transaction(function(tx){
 	      tx.executeSql("INSERT INTO SMS_TABLE (_ID, SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", [_id,
 	                                                                                                _sender,
@@ -319,6 +291,9 @@ function InitDb()
     DropCreateTable("PLACE_SMS",sqlPlaceSms);
     var dt = new Date();
     SetAccountDB(0,"CASH",'','','Наличные','Наличные',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+    SetAccountDB(0,"OUT",'','','Внешний источник','Технический',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+
+
     DatabaseUnit.SetLedger(0,'OUT','CASH','',0,'RUR','','01.01.2000','00:00:00','','',0,'RUR',0,'RUR');
     db.transaction(function (tx) {        
         tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда",
@@ -378,18 +353,29 @@ function InitDb()
 	
 
     db.transaction(function (tx) {        
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["ALPHA",
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
                                                                                          "%ACC%; Pokupka; Uspeshno; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %PLACE%; %TRANS_DATE% %TRANS_TIME%",
                                                                                          "SPENDING"]);
 
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BM",
-                                                                                         "Pokupka, Karta:%ACC% summa:%SUMMA% %CUR%  balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                                                                                         "Pokupka, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
                                                                                          "SPENDING"]);  
         
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BM",
-                                                                                         "Popolnenie, Karta:%ACC% summa:%SUMMA% %CUR%  balans:%BALANCE% %BALANCE_CUR% %DOP_INFO% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
-                                                                                         "ADD"]);  
-        
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                                                                                         "Popolnenie, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %DOP_INFO% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+                                                                                         "ADD"]);
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                                                                                         "Vydacha nalichnyh Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+                                                                                         "CASHOUT"]);
+
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
+                                                                                         "%ACC%; Postupleniye; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %TRANS_DATE%; Podrobnosti v mobilnom banke alfabank.ru/app/1",
+                                                                                         "ADD"],function(){},errorHandler);
+        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
+                                                                                         "Spisanie so scheta %ACC% na summu %SUMMA% %CUR%, poluchatel platezha %PLACE%; %TRANS_DATE% %TRANS_TIME%.",
+                                                                                         "SPENDING"]);
+
+
     });
 	
 	
@@ -450,23 +436,38 @@ function InitDb()
 
 function prepareSearch(_text)
 {
-  var res = _text; //_text.replaceAll('%PLACE%','\\b.*\\b');
+  var res = _text;
+      res =_text.replaceAll('%PLACE%','\\b.*');
       res = res.replaceAll(/%\w*%/ig,'\\b[\\w|\\.|\\*|\\,|\\:||\\/|\\-]*\\b');
       res = res.replaceAll('(','\\(');
       res = res.replaceAll(')','\\)');
   return res;      
 }
-function GetFieldValue(_text, _template, _fieldName)
-{
-  
-  var place = _template.indexOf('%'+_fieldName+'%');
-  var TemplateOut = _template.substring(0,place);        
-  var TemplateIn = _template.substring(0,place+('%'+_fieldName+'%').length);        
-  var RegOut = new RegExp(prepareSearch(TemplateOut),'g');
-  var RegIn = new RegExp(prepareSearch(TemplateIn),'g');
-        
-  var res =_text.substr(_text.match(RegOut)[0].length, _text.match(RegIn)[0].length - _text.match(RegOut)[0].length);  
-  return res;  
+function GetFieldValue(_text, _template, _fieldName) {
+    var place = _template.indexOf('%' + _fieldName + '%');
+    if(place<0){
+        return "";
+    }
+    var TemplateOut = _template.substring(0, place);
+    var TemplateIn = _template.substring(0, place + ('%' + _fieldName + '%').length);
+    var nextPlaceStart = _template.indexOf('%', place + ('%' + _fieldName + '%').length + 1);
+    var nextPlaceFinish = _template.indexOf('%', nextPlaceStart + 1) + 1;
+    var RegOut = new RegExp(prepareSearch(TemplateOut), 'g');
+    var RegIn = new RegExp(prepareSearch(TemplateIn), 'g');
+
+    if (_fieldName == "PLACE" && nextPlaceStart >= 0) {
+        var TemplateOutPlus = _template.substring(0, nextPlaceStart);
+        var RegOutPlus = new RegExp(prepareSearch1(TemplateOutPlus), 'g');
+        var placeFinish = place + ('%'+'PLACE'+'%').length;
+        var dif = nextPlaceStart-placeFinish;
+
+        var res =_text.substring(_text.match(RegOut)[0].length, _text.match(RegOutPlus)[0].length - dif);
+        return res;
+
+    }else{
+        var res = _text.substr(_text.match(RegOut)[0].length, _text.match(RegIn)[0].length - _text.match(RegOut)[0].length);
+        return res;
+    }
 }
 function SetSmsParam(_smsId,_name,_value){
     db.transaction(function (tx) {           
@@ -610,7 +611,17 @@ var DatabaseUnit = {
     {
         //alert(_summaDebit);
         var dt = new Date();
-        dt = Converter.StrToDate(_transDate+" "+_transTime,"DD.MM.YYYY HH24:MI:SS");
+        var transTime = _transTime;
+        if(transTime == ""){
+            transTime = "00:00:00";
+            alert('!');
+        }
+        try{
+            dt = Converter.StrToDate(_transDate+" "+transTime,"DD.MM.YYYY HH24:MI:SS");
+        }catch (err){
+            alert(transTime=='');
+        }
+
         //alert(dt);
         var sqlInsert =  "INSERT INTO LEDGER (DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
                          "                    SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -621,18 +632,24 @@ var DatabaseUnit = {
                 //alert(sqlInsert);
                 tx.executeSql(sqlInsert,[_debitAcc, _creditAcc, _bank,
                                          _summaDebit, _curDebit, _smsId,
-                                         _transDate, _transTime, dt.getTime(),_place, _comments,
+                                         _transDate, transTime, dt.getTime(),_place, _comments,
                                          _summaCredit,_curCredit, _balance, _balanceCur],_functionCallback,errorHandler);
             } else{
                 tx.executeSql("DELETE FROM LEDGER WHERE _ID = ?",[_id],function(){},errorHandler);
                 tx.executeSql(sqlInsertId, [_id, _debitAcc, _creditAcc, _bank,
                                             _summaDebit, _curDebit, _smsId, _transDate,
-                                            _transTime,dt.getTime(),
+                                            transTime,dt.getTime(),
                                             _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur],_functionCallback,errorHandler);
             }
 
 
         });
+    },
+    SetTemplate : function(_sender,_template,_type,_callback){
+        db.transaction(function (tx) {
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", [_sender,_template,_type],errorHandler);
+
+        },_callback);
     }
 }
 

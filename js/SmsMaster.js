@@ -12,6 +12,20 @@ function AnalyzeLedger(){
             debit = sms.acc;
             credit = 'OUT';
         }
+        if(sms.dir =='ADD'){
+            debit = 'OUT';
+            credit = sms.acc;
+        }
+        if(sms.dir =='CASHIN'){
+            debit = 'CASH';
+            credit = sms.acc;
+        }
+
+        if(sms.dir =='CASHOUT'){
+            debit = sms.acc;
+            credit = 'CASH';
+        }
+
         if(i==arrParsedSMS.length - 1){
             DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur,AnalyzeAcc());
         }else{
@@ -38,44 +52,52 @@ function LoadAcc(){
    });
 }
 
-function CompareTemplates(_SMS)
-{
-  var expr = new RegExp('%.*%', 'g');
-  arrTemplate.forEach(
-    function(Item,i,arr){
-      var compTemp = prepareSearch(Item[1]);
-      var regTemp = new RegExp(compTemp,'g');
-      if(_SMS[1].match(regTemp) != null){
-        var sender = Item[0];
-        template = Item[1];
-        var bankSMS = BankSMS();
-        bankSMS._id = _SMS[0];
-        bankSMS.acc = GetFieldValue(_SMS[1],Item[1],'ACC');
-        bankSMS.bank = Item[0];
-        bankSMS.summa = GetFieldValue(_SMS[1],Item[1],'SUMMA');
-        bankSMS.cur = GetFieldValue(_SMS[1],Item[1],'CUR');
-        bankSMS.balance = GetFieldValue(_SMS[1],Item[1],'BALANCE');
-        bankSMS.balanceCur = GetFieldValue(_SMS[1],Item[1],'BALANCE_CUR');
-        bankSMS.tranDate =  GetFieldValue(_SMS[1],Item[1],'TRANS_DATE');
-        bankSMS.tranTime =  GetFieldValue(_SMS[1],Item[1],'TRANS_TIME');
-        bankSMS.place =  GetFieldValue(_SMS[1],Item[1],'PLACE');
-        bankSMS.dir = Item[2];
-        SetSmsParam(_SMS[0],'ACC', bankSMS.acc );
-        SetSmsParam(_SMS[0],'SUMMA', bankSMS.summa);
-        SetSmsParam(_SMS[0],'BANK', bankSMS.bank);
-        SetSmsParam(_SMS[0],'CUR', bankSMS.cur);
-        SetSmsParam(_SMS[0],'BALANCE', bankSMS.balance);
-        SetSmsParam(_SMS[0],'BALANCE_CUR', bankSMS.balanceCur);
-        SetSmsParam(_SMS[0],'TRANS_DATE', bankSMS.tranDate);
-        SetSmsParam(_SMS[0],'TRANS_TIME', bankSMS.tranTime);
-        SetSmsParam(_SMS[0],'DIR', bankSMS.dir);
-        SetSmsParam(_SMS[0],'PLACE', bankSMS.place);
-        arrParsedSMS.push(bankSMS);
-        //SetLedger(acc, sender,_SMS[0],sign,summa,_SMS[2]);        
-      }
-      
-    }
-  );
+function CompareTemplates(_SMS) {
+    var expr = new RegExp('%.*%', 'g');
+    arrTemplate.forEach(
+        function (Item, i, arr) {
+            var compTemp = prepareSearch(Item[1]);
+            var regTemp = new RegExp(compTemp, 'g');
+            if (_SMS[1].match(regTemp) != null) {
+                $("#sms" + _SMS[0]).addClass("parsed");
+                db.transaction(function (tx) {
+                    tx.executeSql("UPDATE SMS_TABLE SET DONE = 1 WHERE _ID = ?", [_SMS[0]], function () {
+                    }, errorHandler);
+
+                });
+                var sender = Item[0];
+                var template = Item[1];
+
+
+                var bankSMS = BankSMS();
+                bankSMS._id = _SMS[0];
+                bankSMS.acc = GetFieldValue(_SMS[1], Item[1], 'ACC');
+                bankSMS.bank = Item[0];
+                bankSMS.summa = GetFieldValue(_SMS[1], Item[1], 'SUMMA');
+                bankSMS.cur = GetFieldValue(_SMS[1], Item[1], 'CUR');
+                bankSMS.balance = GetFieldValue(_SMS[1], Item[1], 'BALANCE');
+                bankSMS.balanceCur = GetFieldValue(_SMS[1], Item[1], 'BALANCE_CUR');
+                bankSMS.tranDate = GetFieldValue(_SMS[1], Item[1], 'TRANS_DATE');
+                bankSMS.tranTime = GetFieldValue(_SMS[1], Item[1], 'TRANS_TIME');
+                bankSMS.place = GetFieldValue(_SMS[1], Item[1], 'PLACE');
+                bankSMS.dir = Item[2];
+
+                SetSmsParam(_SMS[0], 'ACC', bankSMS.acc);
+                SetSmsParam(_SMS[0], 'SUMMA', bankSMS.summa);
+                SetSmsParam(_SMS[0], 'BANK', bankSMS.bank);
+                SetSmsParam(_SMS[0], 'CUR', bankSMS.cur);
+                SetSmsParam(_SMS[0], 'BALANCE', bankSMS.balance);
+                SetSmsParam(_SMS[0], 'BALANCE_CUR', bankSMS.balanceCur);
+                SetSmsParam(_SMS[0], 'TRANS_DATE', bankSMS.tranDate);
+                SetSmsParam(_SMS[0], 'TRANS_TIME', bankSMS.tranTime);
+                SetSmsParam(_SMS[0], 'DIR', bankSMS.dir);
+                SetSmsParam(_SMS[0], 'PLACE', bankSMS.place);
+                arrParsedSMS.push(bankSMS);
+                //SetLedger(acc, sender,_SMS[0],sign,summa,_SMS[2]);
+            }
+
+        }
+    );
 }
 
 function ParseInfo()
@@ -93,7 +115,8 @@ function GetSmsFromTable()
 	db.transaction(function(tx){
 		
 		tx.executeSql("SELECT * FROM SMS_TABLE where DONE = '0'", [], function(tx,result){
-			for (var i=0; i < result.rows.length; i++) { 
+			for (var i=0; i < result.rows.length; i++) {
+
 				var SMS = [result.rows.item(i)._ID,
 				result.rows.item(i).SMS_TEXT,
 				result.rows.item(i).SMS_DATE,
@@ -115,7 +138,8 @@ function GetTemplateFromTable()
 	db.transaction(function(tx){		
 		tx.executeSql("SELECT * FROM SMS_TEMPLATE", [], 
 			function(tx,result){
-				for (var i=0; i < result.rows.length; i++) { 
+				for (var i=0; i < result.rows.length; i++) {
+                   // alert(result.rows.item(i).TEMPLATE);
 					var Template = [result.rows.item(i).SENDER,
 					result.rows.item(i).TEMPLATE,
 					result.rows.item(i).TYPE];
@@ -129,7 +153,7 @@ function GetTemplateFromTable()
 }
 
 function GetInfo()
-{ 
+{
    db.transaction(function(tx)
 					{
 						tx.executeSql("SELECT DISTINCT SENDER FROM SMS_TEMPLATE", [], 
@@ -158,8 +182,9 @@ function CloseSmsMaster()
 function SelectReceiver()
 {
     var dtText = $('#importDateFrom')[0].value;
-	var dt = new Date(dtText.split('-')[0],dtText.split('-')[1],dtText.split('-')[2]);
-		
+    var month = dtText.split('-')[1] - 1;
+	var dt = new Date(dtText.split('-')[0],month,dtText.split('-')[2]);
+
     currentBank = $('#smsBankList')[0].value;
 	//listSMS(currentBank,dt);
     SetSMSTest();
@@ -169,7 +194,7 @@ function SelectReceiver()
 	//GetInfo();
     var mainHeight = $(window).height();
     mainHeight = mainHeight - $("#SmsMasterHeader").outerHeight();
-    mainHeight = mainHeight - $("#nb").height()-$("#twoFooter").height();
+    mainHeight = mainHeight - $("#nb").outerHeight()-$("#btnAnalize").outerHeight();
     $("#smsListContainer").height(mainHeight+"px");
 	/*
 	db.transaction(function(tx){
@@ -245,21 +270,7 @@ function SmsMaster()
 {
 
     var mainHeight = $(window).height();
-	/*
-	$('#smsBankList option').remove();   
-	var html = '<option value="">123</option>';
-	$('#smsBankList').append(html);
-	db.transaction(function(tx){
-		
-		tx.executeSql("SELECT * FROM BANK", [], function(tx,result){
-			for (var i=0; i < result.rows.length; i++) {                        
-				//alert(result.rows.item(i).ACC);
-				var html = "";
-				var html = '<option value="'+result.rows.item(i).CODE+'">'+result.rows.item(i).NAME+'</option>';
-				$('#smsBankList').append(html);                      
-			}
-		}); 
-	});*/   
+
     $('#FirstStep').addClass('ui-btn-active');
     $('#SecondStep').removeClass('ui-btn-active');
     $('#Third').removeClass('ui-btn-active');
