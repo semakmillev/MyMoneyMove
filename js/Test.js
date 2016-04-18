@@ -122,3 +122,52 @@ function TestModule(){
 
 
 }
+function TestAcc()
+{
+    var insertSql =
+       // "INSERT INTO ACCOUNT(ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) " +
+            " SELECT MIN_L.ACC," +
+            "        '' PARENT_ACC, " +
+            "        BANK BANK, " +
+            "        '' NAME, " +
+            "        '' TYPE, " +
+            "        BALANCE_CUR CUR, " +
+            "        TRANS_DATE DATE_OPEN, " +
+            "        CASE WHEN L.CREDIT_ACC = MIN_L.ACC THEN L.BALANCE - L.SUMMA_CREDIT " +
+            "             WHEN L.DEBIT_ACC  = MIN_L.ACC THEN L.BALANCE + L.SUMMA_DEBIT " +
+            "        END START_BALANCE," +
+            "        ''  COMMENTS " +
+            "   FROM LEDGER L," +
+            "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+            "          FROM (                 " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY DEBIT_ACC" +
+            "                UNION         " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY CREDIT_ACC)" +
+            "        GROUP BY ACC" +
+            "               ) MIN_L " +
+            " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+            "   AND (L.DEBIT_ACC = MIN_L.ACC OR L.CREDIT_ACC = MIN_L.ACC) " +
+            "   AND MIN_L.ACC <> 'OUT'"+
+            "   AND MIN_L.ACC IN(SELECT ACC FROM ACCOUNT)";
+
+    db.transaction(function (tx) {
+        tx.executeSql(insertSql, [], function(tx, result){
+            for (var i=0; i < result.rows.length; i++) {
+                alert(result.rows.item(i).ACC);
+            }
+        }, errorHandler);
+    },errorHandler,function(tx){
+        //var sql = ""
+        /*
+         tx.executeSql('SELECT * FROM ACCOUNT WHERE START_BALANCE != 0', [], function(tx, result){
+         for (var i=0; i < result.rows.length; i++) {
+         //alert(result.rows.item(i).ACC);
+         }
+         }, errorHandler);*/
+    });
+
+}

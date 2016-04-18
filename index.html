@@ -1,4 +1,4 @@
-<!--
+п»ї<!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
@@ -18,12 +18,14 @@ and open the template in the editor.
 	<script src="js/SMS.js"></script>
 	<script src="js/Test.js"></script>
 	<script src="js/Db.js"></script>
-	<script src="js/main.js"></script>		
+	<script src="js/main.js"></script>
+    <script src="js/Account.js"></script>
 	<script src="js/SmsMaster.js"></script>	
 	<script src="jq/jquery.ui.datepicker.js"></script>
     <script src="js/Ledger.js"></script>
     <script src="js/LP.js"></script>
     <script src="js/Balance.js"></script>
+
     <script type="text/javascript" src="cordova.js"></script>
 	<link rel="stylesheet" href="jq/jquery.mobile.datepicker.css"/>	
 </head>
@@ -71,6 +73,7 @@ and open the template in the editor.
         
     </style>
     <script type="text/javascript">
+
         // transparent-dialogue.
         $(document).delegate('[data-role="dialog"]', 'pagebeforeshow', function (e, ui) {
             ui.prevPage.addClass("ui-dialog-background ");
@@ -82,7 +85,7 @@ and open the template in the editor.
 
 
 
-        LoadBanks();
+        Main.LoadBanks();
 
     </script>
 	<script>
@@ -103,13 +106,13 @@ and open the template in the editor.
         </div>
         
         <div data-role="content">
-            <a data-role="button" onclick="SmsMaster()">Мастер импорта SMS</a>
-            <a data-role="button" onclick="Place.ShowList()">Места</a>
-			<a data-role="button" onclick="ShowAccounts()">Счета</a>
-            <a data-role="button" onclick="ShowBanks()">Банки</a>
-            <a data-role="button" onclick="Category.ShowDialog()">Диалог категории</a>
-            <a data-role="button" onclick="ShowCategoriesModal()">Выбор Категории</a>
-            <a data-role="button" onclick="Ledger.ShowWindow(0)">Форма Журнала</a>
+            <a data-role="button" onclick="SmsMaster()">РњР°СЃС‚РµСЂ РёРјРїРѕСЂС‚Р° SMS</a>
+            <a data-role="button" onclick="Place.ShowList()">РњРµСЃС‚Р°</a>
+			<a data-role="button" onclick="Main.ShowAccounts()">РЎС‡РµС‚Р°</a>
+            <a data-role="button" onclick="ShowBanks()">Р‘Р°РЅРєРё</a>
+            <a data-role="button" onclick="Category.ShowDialog()">Р”РёР°Р»РѕРі РєР°С‚РµРіРѕСЂРёРё</a>
+            <a data-role="button" onclick="ShowCategoriesModal()">Р’С‹Р±РѕСЂ РљР°С‚РµРіРѕСЂРёРё</a>
+            <a data-role="button" onclick="Ledger.ShowWindow(0)">Р¤РѕСЂРјР° Р–СѓСЂРЅР°Р»Р°</a>
 
 
 
@@ -135,13 +138,13 @@ and open the template in the editor.
         <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-add" onclick="InitDb()" data-rel="dialog">Сбросить данные</a>
-            <a data-icon="check" data-role="minus" onclick="GetSMS()" data-rel="dialog">Получить СМС</a>			
-            <a data-icon="check" data-role="minus" onclick="ShowAccounts()" data-rel="dialog">Счета</a>
-            <a data-icon="check" data-role="minus" onclick="ParseInfo()" data-rel="dialog">Распарсить инфу</a>
+            <a data-icon="check" class="ui-btn-add" onclick="InitDb()" data-rel="dialog">РЎР±СЂРѕСЃРёС‚СЊ РґР°РЅРЅС‹Рµ</a>
+            <a data-icon="check" data-role="minus" onclick="DatabaseUnit.LoadAccounts()" data-rel="dialog">РџРѕР»СѓС‡РёС‚СЊ РЎРњРЎ</a>
+            <a data-icon="check" data-role="minus" onclick="ShowAccounts()" data-rel="dialog">РЎС‡РµС‚Р°</a>
+            <a data-icon="check" data-role="minus" onclick="ParseInfo()" data-rel="dialog">Р Р°СЃРїР°СЂСЃРёС‚СЊ РёРЅС„Сѓ</a>
             <a data-icon="check" data-role="minus" onclick="Lp()" data-rel="dialog">Load Test</a>            
-            <a data-icon="check" data-role="minus" onclick="Ledger.Check()" data-rel="dialog">Проверить журнал</a>
-            <a data-icon="check" data-role="minus" onclick="Get1()" data-rel="dialog">Модуль</a>
+            <a data-icon="check" data-role="minus" onclick="Ledger.Check()" data-rel="dialog">РџСЂРѕРІРµСЂРёС‚СЊ Р¶СѓСЂРЅР°Р»</a>
+            <a data-icon="check" data-role="minus" onclick="Get1()" data-rel="dialog">РњРѕРґСѓР»СЊ</a>
 						
 
         </div>
@@ -211,7 +214,7 @@ and open the template in the editor.
         
         <div data-role="header" id="SmsMasterHeader" data-theme="d">
             <h1>Dialog</h1>
-            <a data-icon="back" data-rel="back" onclick="AnalyzeLedger()">Назад</a>
+            <a data-icon="back" data-rel="back" onclick="AnalyzeLedger()">РќР°Р·Р°Рґ</a>
         </div>
         <div data-role="content">  
             <div data-role="tabs" id="SmsMasterTabs" style="width:100%; padding:0px; ">
@@ -224,15 +227,15 @@ and open the template in the editor.
                 </div>
                 <div id="one">
 					<div data-role="content" class="contentPanel">
-						<label for="importDateFrom">Дата поиска:</label>
+						<label for="importDateFrom">Р”Р°С‚Р° РїРѕРёСЃРєР°:</label>
 						<input type="date" name="importDateFrom" id="importDateFrom" value=""/>
 						<div class="ui-field-contain">
-							<label for="smsBankList" class="select">Тип:</label>
+							<label for="smsBankList" class="select">РўРёРї:</label>
 							<select class="bankList" name="smsBankList" id="smsBankList">								
 							</select>
 						</div>
 					</div>
-                    <a data-role="button" class="bottomButton" onclick="SelectReceiver()">Форма Журнала</a>
+                    <a data-role="button" class="bottomButton" onclick="SelectReceiver()">Р¤РѕСЂРјР° Р–СѓСЂРЅР°Р»Р°</a>
 					<!--div data-role="footer">
                         <a data-icon="carat-r" class="ui-btn-forward ui-btn-right ui-active" data-iconpos="right" onclick="SelectReceiver()" data-rel="dialog">Next</a>
 					</div-->
@@ -245,7 +248,7 @@ and open the template in the editor.
                             </ul>
                         </div>
                     </div>
-                    <a data-role="button" id="btnAnalize" class="bottomButton" onclick="GetInfo()">Анализировать</a>
+                    <a data-role="button" id="btnAnalize" class="bottomButton" onclick="GetInfo()">РђРЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ</a>
                 </div>
                 <div id="three">                     
                    <div data-role="footer">            
@@ -261,22 +264,22 @@ and open the template in the editor.
 
         <div data-role="content">
             <div class="ui-field-contain">
-                <label for="templateBank">Банк</label>
+                <label for="templateBank">Р‘Р°РЅРє</label>
                 <input type="text" id="templateBank" value=""/>
             </div>
             <textarea id=templateText>
 
             </textarea>
             <select id="templateType">
-                <option value = "SPENDING">Расход</option>
-                <option value = "ADD">Приход</option>
-                <option value = "TRANSFER">Перевод</option>
-                <option value = "CASHIN">Внесение наличных</option>
-                <option value = "CASHOUT">Выдача наличных</option>
+                <option value = "SPENDING">Р Р°СЃС…РѕРґ</option>
+                <option value = "ADD">РџСЂРёС…РѕРґ</option>
+                <option value = "TRANSFER">РџРµСЂРµРІРѕРґ</option>
+                <option value = "CASHIN">Р’РЅРµСЃРµРЅРёРµ РЅР°Р»РёС‡РЅС‹С…</option>
+                <option value = "CASHOUT">Р’С‹РґР°С‡Р° РЅР°Р»РёС‡РЅС‹С…</option>
             </select>
         </div>
         <div data-role="footer">
-            <a data-icon="plus" class="ui-btn-add" onclick="Main.AddTemplate()" data-rel="dialog">Добавить шаблон</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="Main.AddTemplate()" data-rel="dialog">Р”РѕР±Р°РІРёС‚СЊ С€Р°Р±Р»РѕРЅ</a>
         </div>
     </div>
     <!-------------------------------------------------ACCOUNTS---------------------------------------------->
@@ -288,16 +291,16 @@ and open the template in the editor.
 	</div>
 	<div data-role="page" id="Accounts" style="height: auto">	
         <div data-role="header" data-theme="a">
-            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+            <a data-rel="back" data-icon="back" class="ui-btn-left">РќР°Р·Р°Рґ</a>
 			<h1>Money</h1>
         </div>
         <div data-role="content">
             <table data-role="table" id="accountList"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
                 <thead>
                     <tr class="ui-bar-d">
-                        <th data-priority="1">Имя</th>                       
-                        <th data-priority="1">Счет</th>                        
-                        <th data-priority="1">Баланс</th>
+                        <th data-priority="1">РРјСЏ</th>                       
+                        <th data-priority="1">РЎС‡РµС‚</th>                        
+                        <th data-priority="1">Р‘Р°Р»Р°РЅСЃ</th>
                     </tr>
                 </thead>                    
                 <tbody>
@@ -307,37 +310,37 @@ and open the template in the editor.
         <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
         </div>
         <div data-role="footer">            
-            <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Добавить счет</a>
-            <a data-icon="plus" class="ui-btn-add" onclick="Balance.CheckBalance()" data-rel="dialog">Счета из журнала</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Р”РѕР±Р°РІРёС‚СЊ СЃС‡РµС‚</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="Balance.CheckBalance()" data-rel="dialog">РЎС‡РµС‚Р° РёР· Р¶СѓСЂРЅР°Р»Р°</a>
         </div>
 	</div>
     <div data-role="dialog" id="AccountMenu">         
         <div data-role="header" data-theme="d">
-            <h1>Счет</h1>
+            <h1>РЎС‡РµС‚</h1>
         </div>
         <div data-role="content">  
-            <label for="nameAcc">Имя:</label>
+            <label for="nameAcc">РРјСЏ:</label>
             <input type="text" name="nameAcc" id="nameAcc" value="" data-mini="true" />
-            <label for="codeAcc">Код Счета\Карты</label>
+            <label for="codeAcc">РљРѕРґ РЎС‡РµС‚Р°\РљР°СЂС‚С‹</label>
             <input type="text" name="codeAcc" id="codeAcc" value="" data-mini="true" />
             <div class="ui-field-contain">
-                <label for="accTypeList" class="select" >Тип:</label>
+                <label for="accTypeList" class="select" >РўРёРї:</label>
                 <select name="accTypeList" id="accTypeList" text = "">
-                    <option>Наличные</option>
-					<option>Дебетовая карта</option>
-					<option>Кредитная карта</option>
-					<option>Мультивалютная карта</option>
-					<option>Счет</option>
-					<option>Вклад</option>
+                    <option>РќР°Р»РёС‡РЅС‹Рµ</option>
+					<option>Р”РµР±РµС‚РѕРІР°СЏ РєР°СЂС‚Р°</option>
+					<option>РљСЂРµРґРёС‚РЅР°СЏ РєР°СЂС‚Р°</option>
+					<option>РњСѓР»СЊС‚РёРІР°Р»СЋС‚РЅР°СЏ РєР°СЂС‚Р°</option>
+					<option>РЎС‡РµС‚</option>
+					<option>Р’РєР»Р°Рґ</option>
                 </select>
             </div>
 			<div class="ui-field-contain">
-                <label for="accBankList" class="select" value = "0">Банк:</label>
+                <label for="accBankList" class="select" value = "0">Р‘Р°РЅРє:</label>
                 <select class="bankList" name="accBankList" id="accBankList">
                 </select>
             </div>
 			
-			<label for="dateAcc">Дата открытия:</label>
+			<label for="dateAcc">Р”Р°С‚Р° РѕС‚РєСЂС‹С‚РёСЏ:</label>
             <input type="date" name="dateAcc" id="dateAcc" value=""  />	
             
         </div>
@@ -348,16 +351,16 @@ and open the template in the editor.
     <!-------------------------------------------------BANKS---------------------------------------------->
     <div data-role="page" id="Banks" style="height: auto">	
         <div data-role="header" data-theme="a">
-            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
-			<h1>Банки</h1>
+            <a data-rel="back" data-icon="back" class="ui-btn-left">РќР°Р·Р°Рґ</a>
+			<h1>Р‘Р°РЅРєРё</h1>
         </div>
         <div data-role="content">
             <table data-role="table" id="bankList"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
                 <thead>
                     <tr class="ui-bar-d">
-                        <th data-priority="1">Имя</th>                       
-                        <th data-priority="1">Код в СМС</th>
-                        <th data-priority="1">БИК</th>                        
+                        <th data-priority="1">РРјСЏ</th>                       
+                        <th data-priority="1">РљРѕРґ РІ РЎРњРЎ</th>
+                        <th data-priority="1">Р‘РРљ</th>                        
                     </tr>
                 </thead>                    
                 <tbody>                   
@@ -366,23 +369,23 @@ and open the template in the editor.
         <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
         </div>
         <div data-role="footer">            
-            <a data-icon="plus" class="ui-btn-add" onclick="AddBank()" data-rel="dialog">Новый банк</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="AddBank()" data-rel="dialog">РќРѕРІС‹Р№ Р±Р°РЅРє</a>
         </div>
 	</div>
     <div data-role="dialog" id="BankMenu">               
         <div data-role="header" data-theme="d">
-            <h1>Банк</h1>
+            <h1>Р‘Р°РЅРє</h1>
         </div>
         <div data-role="content">  
-            <label for="nameBank">Имя:</label>
+            <label for="nameBank">РРјСЏ:</label>
             .<input type="text" name="nameBank" id="nameBank" value="" data-mini="true" />
-            <label for="codeBank">Код в смс:</label>
+            <label for="codeBank">РљРѕРґ РІ СЃРјСЃ:</label>
             <input type="text" name="codeBank" id="codeBank" value="" data-mini="true" />
-            <label for="bicBank">БИК:</label>
+            <label for="bicBank">Р‘РРљ:</label>
             <input type="text" name="bicBank" id="bicBank" value=""  />	
         </div>
         <div data-role="footer">            
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="SetBank()" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="SetBank()" data-rel="dialog">РћРљ</a>
         </div>        
     </div>
     <!----------------------------------------------CATEGORIES--------------------------------------------------------->
@@ -446,14 +449,14 @@ and open the template in the editor.
         
        
         <div data-role="header" data-theme="a">
-            <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
-			<h1>Категории</h1>
+            <a data-rel="back" data-icon="back" class="ui-btn-left">РќР°Р·Р°Рґ</a>
+			<h1>РљР°С‚РµРіРѕСЂРёРё</h1>
         </div>
         <div data-role="content" class="categoryContent" data-iconpos="right" data-corners="false">
                  
         </div>
         <div data-role="footer">            
-            <a data-icon="plus" class="ui-btn-add" onclick="" data-rel="dialog">Сбросить</a>
+            <a data-icon="plus" class="ui-btn-add" onclick="" data-rel="dialog">РЎР±СЂРѕСЃРёС‚СЊ</a>
         </div>
 	</div>
 
@@ -467,16 +470,16 @@ and open the template in the editor.
             }
         </style>
         <div data-role="header" data-theme="d">
-            <h1>Категория</h1>
+            <h1>РљР°С‚РµРіРѕСЂРёСЏ</h1>
         </div>
         <div data-role="content">  
-            <label for="nameCategoryDlg">Имя</label>
+            <label for="nameCategoryDlg">РРјСЏ</label>
             <input type="text" name="nameCategoryDlg" id="nameCategoryDlg" value="" data-mini="true" />
-            <label for="categorySimpleList" class="select" value = "0">Родитель</label>
+            <label for="categorySimpleList" class="select" value = "0">Р РѕРґРёС‚РµР»СЊ</label>
             <select name="categorySimpleList" id="categorySimpleList">
             </select>
             <fieldset data-role="controlgroup" data-type="horizontal" id="categoryTypeDlg">
-                <legend>Знак:</legend>
+                <legend>Р—РЅР°Рє:</legend>
                 <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="+" checked="checked">
                 <label for="radio-choice-h-2a">+</label>
                 <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="-">
@@ -485,7 +488,7 @@ and open the template in the editor.
 
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">РћРљ</a>
         </div>
     </div>
     <!-----------------------------------------------LEDGER-------------------------------------->
@@ -582,54 +585,54 @@ and open the template in the editor.
                 <div id="Spending">
 
                     <div class="ui-field-contain">
-                        <label for="journalSummaDebit">Сумма</label>
+                        <label for="journalSummaDebit">РЎСѓРјРјР°</label>
                         <input type="text" id="journalSummaDebit" value="" data-mini="true"/>
                     </div>
                     <div class="ui-field-contain">
-                        <label for="journalCurDebit">Валюта:</label>
+                        <label for="journalCurDebit">Р’Р°Р»СЋС‚Р°:</label>
                         <input type="text" id="journalCurDebit" value="" data-mini="true"/>
                     </div>
 
                     <div class="ui-field-contain">
-                        <label for="journalDebitAcc">Со счёта</label>
+                        <label for="journalDebitAcc">РЎРѕ СЃС‡С‘С‚Р°</label>
                         <input type="text" id="journalDebitAcc" value="" data-mini="true"/>
                     </div>
                     <div class="ui-field-contain">
-                        <label for="journalDebitAcc">На счёт</label>
+                        <label for="journalDebitAcc">РќР° СЃС‡С‘С‚</label>
                         <input type="text" id="journalCreditAcc" value="" data-mini="true"/>
                     </div>
 
                     <div class="ui-field-contain">
-                        <label for="journalBankList" class="select">Банк:</label>
+                        <label for="journalBankList" class="select">Р‘Р°РЅРє:</label>
                         <select class="bankList" id="journalBankList">
                         </select>
                     </div>
                     <div class="ui-field-contain">
-                        <label for="journalPlace">Место платежа:</label>
+                        <label for="journalPlace">РњРµСЃС‚Рѕ РїР»Р°С‚РµР¶Р°:</label>
                         <input type="text" id="journalPlace" onclick="Ledger.SetPlace()" value="" data-mini="true"/>
                     </div>
                     <div class="ui-field-contain">
-                        <label for="journalDate">Дата:</label>
+                        <label for="journalDate">Р”Р°С‚Р°:</label>
                         <input type="date" name="date" id="journalDate" value=""/>
                     </div>
 
-                    <label for="journalCats">Категории:</label>
+                    <label for="journalCats">РљР°С‚РµРіРѕСЂРёРё:</label>
 
                     <div class="container" style="height: 120px">
                         <ul id="journalCats" data-role="listview">
-                            <li data-icon="false" onclick="Ledger.addCategory()"><a>Добавить</a></li>
+                            <li data-icon="false" onclick="Ledger.addCategory()"><a>Р”РѕР±Р°РІРёС‚СЊ</a></li>
                         </ul>
                     </div>
 
                 </div>
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Ledger.Set()" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Ledger.Set()" data-rel="dialog">РћРљ</a>
         </div>
     </div>
     <script>
-        LoadBanks();
-        LoadCategories();
+        Main.LoadBanks();
+        //Main.LoadCategories();
         $(document).on("pagecreate","#CategorySelect",function(){
             $(".ui-collapsible h2 a").on("taphold",function(el){
                 localStorage.selCategory = el.currentTarget.parentNode.parentNode.getAttribute('value');
@@ -646,13 +649,13 @@ and open the template in the editor.
             } */
         </style>
         <div data-role="content">
-            <p>Долгое нажатие для выбора</p>
+            <p>Р”РѕР»РіРѕРµ РЅР°Р¶Р°С‚РёРµ РґР»СЏ РІС‹Р±РѕСЂР°</p>
             <div class="categoryContent" id="ccC" data-iconpos="right" data-corners="false">
 
             </div>
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="CloseCategory()" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="CloseCategory()" data-rel="dialog">РћРљ</a>
         </div>
     </div>
 
@@ -668,7 +671,7 @@ and open the template in the editor.
             </ul>
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" data-rel="dialog">РћРљ</a>
         </div>
     </div>
 
@@ -680,14 +683,14 @@ and open the template in the editor.
             }
         </style>
         <div data-role="header" data-theme="d">
-            <h1>Место</h1>
+            <h1>РњРµСЃС‚Рѕ</h1>
         </div>
         <div data-role="content">
-            <label for="namePlaceDlg">Имя</label>
+            <label for="namePlaceDlg">РРјСЏ</label>
             <input type="text" name="namePlaceDlg" id="namePlaceDlg" value="" data-mini="true" />
         </div>
         <div data-role="footer">
-            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">ОК</a>
+            <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Category.SetCategory()" data-rel="dialog">РћРљ</a>
         </div>
     </div>
 

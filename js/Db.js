@@ -1,9 +1,4 @@
-﻿/*
-	db.transaction(function (tx) {
-tx.executeSql("SELECT * FROM BANK", [], CallBackHandleResult);
-},errorHandler, CallBackContinue);
-*/
-var db = openDatabase('MoneyDB', '1.0', 'Money Database', 10 * 1024 * 1024);
+﻿var db = openDatabase('MoneyDB', '1.0', 'Money Database', 10 * 1024 * 1024);;
 var sqlSmsParams = "CREATE TABLE IF NOT EXISTS SMS_PARAMS("+
                    "SMS_ID, "+
                    "NAME, "+
@@ -99,15 +94,6 @@ String.prototype.replaceAll = function(target, replacement) {
   return this.split(target).join(replacement);
 };
 
-function DropCreateTable(_tableName, _createScript)
-{
-    //alert(_createScript);
-    var deleteScript = "DELETE FROM "+_tableName;
-    var dropScript = "DROP TABLE "+_tableName;
-    db.transaction(function (tx) {tx.executeSql(deleteScript);});
-    db.transaction(function (tx) {tx.executeSql(dropScript);});
-    db.transaction(function (tx) {tx.executeSql(_createScript,[],function(){},errorHandler);});
-}
 function ConvertDate(_text)
 {
    //"31.03.2016 15:08:48"
@@ -279,158 +265,22 @@ function InitDb()
 {
     arrSender.length = 0;
     arrParsedSMS.length = 0;
-    DropCreateTable("SMS_TABLE",sqlSmsTable);
-    DropCreateTable("SMS_TEMPLATE",sqlSmsTemplate);
-    DropCreateTable("LEDGER",sqlLedger);
-    DropCreateTable("ACCOUNT",sqlAccount);
-    DropCreateTable("SMS_PARAMS",sqlSmsParams);
-    DropCreateTable("BANK",sqlBanks);
-    DropCreateTable("CATEGORY",sqlCategory);
-    DropCreateTable("LEDGER_CATEGORY",sqlLedgerCategories);
-    DropCreateTable("PLACE",sqlPlaces);
-    DropCreateTable("PLACE_SMS",sqlPlaceSms);
-    var dt = new Date();
-    SetAccountDB(0,"CASH",'','','Наличные','Наличные',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
-    SetAccountDB(0,"OUT",'','','Внешний источник','Технический',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+    DatabaseUnit.DropCreateTable("SMS_TABLE",sqlSmsTable);
+    DatabaseUnit.DropCreateTable("SMS_TEMPLATE",sqlSmsTemplate);
+    DatabaseUnit.DropCreateTable("LEDGER",sqlLedger);
+    DatabaseUnit.DropCreateTable("ACCOUNT",sqlAccount);
+    DatabaseUnit.DropCreateTable("SMS_PARAMS",sqlSmsParams);
+    DatabaseUnit.DropCreateTable("BANK",sqlBanks);
+    DatabaseUnit.DropCreateTable("CATEGORY",sqlCategory);
+    DatabaseUnit.DropCreateTable("LEDGER_CATEGORY",sqlLedgerCategories);
+    DatabaseUnit.DropCreateTable("PLACE",sqlPlaces);
+    DatabaseUnit.DropCreateTable("PLACE_SMS",sqlPlaceSms);
+    DatabaseUnit.LoadTemplates();
+    DatabaseUnit.LoadLedger();
+    DatabaseUnit.LoadAccounts();
+    DatabaseUnit.LoadBanks();
+    DatabaseUnit.LoadCategories();
 
-
-    DatabaseUnit.SetLedger(0,'OUT','CASH','',0,'RUR','','01.01.2000','00:00:00','','',0,'RUR',0,'RUR');
-    db.transaction(function (tx) {        
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда",
-                                                                                       "Еда",
-                                                                                       "",
-                                                                                       "-"]);       
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда:Столовая",
-                                                                                       "Столовая",
-                                                                                       "Еда",
-                                                                                       "-"]);
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда:Столовая:Обед",
-                                                                                       "Обед",
-                                                                                       "Еда:Столовая",
-                                                                                       "-"]);
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Дом",
-                                                                                       "Дом",
-                                                                                       "",
-                                                                                       "-"]);
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Развлечения",
-                                                                                       "Развлечения",
-                                                                                       "",
-                                                                                       "-"],
-                      function(){},
-                      errorHandler);
-
-        tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Развлечения:Ресторан",
-                                                                                       "Ресторан",
-                                                                                       "Развлечения",
-                                                                                       "-"],
-            function(){},
-            errorHandler);
-
-    });
-  
-   
-   
-   db.transaction(function (tx) {        
-
-
-       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)",["Альфа-банк",
-                                                                        "Alfa-Bank",
-                                                                        "123456",
-                                                                        "DD.MM.YYYY",
-                                                                        "HH24:MI:SS"],function(){},errorHandler);
-       tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)", ["Банк Москвы",
-																		 "BankMoskvy",
-																		 "123456",
-                                                                         "DD.MM.YYYY",
-                                                                         "HH24:MI:SS"],function(){},errorHandler);
-
-        
-  }); 
-						
- 
-	
-	
-	
-
-    db.transaction(function (tx) {        
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
-                                                                                         "%ACC%; Pokupka; Uspeshno; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %PLACE%; %TRANS_DATE% %TRANS_TIME%",
-                                                                                         "SPENDING"]);
-
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
-                                                                                         "Pokupka, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
-                                                                                         "SPENDING"]);  
-        
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
-                                                                                         "Popolnenie, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %DOP_INFO% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
-                                                                                         "ADD"]);
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
-                                                                                         "Vydacha nalichnyh Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
-                                                                                         "CASHOUT"]);
-
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
-                                                                                         "%ACC%; Postupleniye; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %TRANS_DATE%; Podrobnosti v mobilnom banke alfabank.ru/app/1",
-                                                                                         "ADD"],function(){},errorHandler);
-        tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
-                                                                                         "Spisanie so scheta %ACC% na summu %SUMMA% %CUR%, poluchatel platezha %PLACE%; %TRANS_DATE% %TRANS_TIME%.",
-                                                                                         "SPENDING"]);
-
-
-    });
-	
-	
-	/*
-	var dataBaseExists(yep, nope) {
-		database.transaction(function(tx) {
-			tx.executeSql('CREATE TABLE GLOBAL (uid, property, value)');
-			}, function(){
-			if (yep) {
-				yep.apply(this, arguments);
-			}
-			}, function(){
-			if (nope) {
-				nope.apply(this, arguments);
-			}
-		});
-	};
-	
-	
-	var itDoes = function() {
-		console.log("great");
-	};
-	
-	var itDoesNot = function() {
-		console.log("what a pity");
-	};
-	
-	
-	databaseExists(itDoes, itDoesNot);
-      */ 
-    db.transaction(function (tx) {
-                
-      /*  tx.executeSql("INSERT INTO SMS_TABLE (_ID,SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", ["1","BM",
-                                                                                                 "Popolnenie, Karta:8038 summa:74571.29 RUR  balans:99909.51 RUR 000000000000191000001844019256 (vremya operatsii MSK 14:04:52 31.03.2016)",
-                                                                                                 ConvertDate("31.03.2016 14:04:52"),
-                                                                                                 "0"]);*/
-        /*tx.executeSql("INSERT INTO SMS_TABLE (_ID,SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", ["2","BM",
-                                                                                                 "Pokupka, Karta:8968 summa:478.00 RUR  balans:25338.22 RUR YM*YandexTaxi (vremya operatsii MSK 11:17:10 31.03.2016)",
-                                                                                                 ConvertDate("31.03.2016 11:17:10"),
-                                                                                                 "0"]);
-        tx.executeSql("INSERT INTO SMS_TABLE (_ID,SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", ["3","BM",
-                                                                                                 "Pokupka, Karta:8968 summa:108.00 RUR  balans:99801.51 RUR STOLOVAYA -ZHUKOVSKOGO (vremya operatsii MSK 15:08:48 31.03.2016)",
-                                                                                                 ConvertDate("31.03.2016 15:08:48"),
-             /                                                                                    "0"]);
-        
-        tx.executeSql("INSERT INTO SMS_TABLE (_ID,SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", ["4","BM",
-                                                                                                 "Pokupka, Karta:8968 summa:594.00 RUR  balans:25816.22 RUR CAFE-CLUB 1000 MILES (vremya operatsii MSK 22:47:55 30.03.2016)",
-                                                                                                 ConvertDate("30.03.2016 22:47:55"),
-                                                                                                 "0"]);
-        tx.executeSql("INSERT INTO SMS_TABLE (_ID,SENDER,SMS_TEXT,SMS_DATE,DONE) VALUES (?,?,?,?,?)", ["5","ALPHA",
-                                                                                                 "5*8022; Pokupka; Uspeshno; Summa: 59,00 RUR; Ostatok: 12941,08 RUR; RU/MOSCOW/CITYSTORE-CHAPLYGINA; 28.03.2016 15:38:40",
-                                                                                                 ConvertDate("28.03.2016 15:38:40"),
-                                                                                                 "0"]);    */
-   
-    });
 }
 
 
@@ -607,6 +457,114 @@ function SaveTrain()
  "TRANS_DATE,  PLACE, COMMENTS, SUMMA_RUR, BALANCE, BALANCE_CUR
  */
 var DatabaseUnit = {
+    DropCreateTable: function (_tableName, _createScript,_callback) {
+        //alert(_createScript);
+        var deleteScript = "DELETE FROM " + _tableName;
+        var dropScript = "DROP TABLE " + _tableName;
+
+        db.transaction(function (tx) {
+            tx.executeSql(deleteScript);
+        });
+
+        db.transaction(function (tx) {
+            tx.executeSql(dropScript);
+        });
+
+        db.transaction(function (tx) {
+                tx.executeSql(_createScript,
+                             [],
+                             function(){},
+                             errorHandler);
+        });
+        _callback;
+    },
+    LoadCategories: function(){
+        db.transaction(function (tx) {
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда",
+                "Еда",
+                "",
+                "-"]);
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда:Столовая",
+                "Столовая",
+                "Еда",
+                "-"]);
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Еда:Столовая:Обед",
+                "Обед",
+                "Еда:Столовая",
+                "-"]);
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Дом",
+                "Дом",
+                "",
+                "-"]);
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Развлечения",
+                    "Развлечения",
+                    "",
+                    "-"],
+                function(){},
+                errorHandler);
+
+            tx.executeSql("INSERT INTO CATEGORY (_ID,NAME,PARENT,TYPE) VALUES (?,?,?,?)", ["Развлечения:Ресторан",
+                    "Ресторан",
+                    "Развлечения",
+                    "-"],
+                function(){},
+                errorHandler);
+
+        });
+    },
+    LoadLedger: function(){
+        DatabaseUnit.SetLedger(0,'OUT','CASH','',0,'RUR','','01.01.2000','00:00:00','','',0,'RUR',0,'RUR');
+    },
+    LoadBanks: function(){
+        db.transaction(function (tx) {
+            tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)",["Альфа-банк",
+                "Alfa-Bank",
+                "123456",
+                "DD.MM.YYYY",
+                "HH24:MI:SS"],function(){},errorHandler);
+            tx.executeSql("INSERT INTO BANK (NAME,CODE,BIC,DATE_FORMAT,TIME_FORMAT) VALUES (?,?,?,?,?)", ["Банк Москвы",
+                "BankMoskvy",
+                "123456",
+                "DD.MM.YYYY",
+                "HH24:MI:SS"],function(){},errorHandler);
+
+
+        });
+    },
+    LoadTemplates: function(){
+        db.transaction(function (tx) {
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
+                "%ACC%; Pokupka; Uspeshno; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %PLACE%; %TRANS_DATE% %TRANS_TIME%",
+                "SPENDING"]);
+
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                "Pokupka, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+                "SPENDING"]);
+
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                "Popolnenie, Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %DOP_INFO% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+                "ADD"]);
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["BankMoskvy",
+                "Vydacha nalichnyh Karta:%ACC% summa:%SUMMA% %CUR% balans:%BALANCE% %BALANCE_CUR% %PLACE% (vremya operatsii MSK %TRANS_TIME% %TRANS_DATE%)",
+                "CASHOUT"]);
+
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
+                "%ACC%; Postupleniye; Summa: %SUMMA% %CUR%; Ostatok: %BALANCE% %BALANCE_CUR%; %TRANS_DATE%; Podrobnosti v mobilnom banke alfabank.ru/app/1",
+                "ADD"],function(){},errorHandler);
+            tx.executeSql("INSERT INTO SMS_TEMPLATE (SENDER,TEMPLATE,TYPE) VALUES (?,?,?)", ["Alfa-Bank",
+                "Spisanie so scheta %ACC% na summu %SUMMA% %CUR%, poluchatel platezha %PLACE%; %TRANS_DATE% %TRANS_TIME%.",
+                "SPENDING"], function () {},errorHandler);
+
+            });
+
+
+
+    },
+    LoadAccounts: function(){
+        var dt = new Date();
+        SetAccountDB(0,"CASH",'','','Наличные','Наличные',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+        SetAccountDB(0,"OUT",'','','Внешний источник','Технический',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+    },
     SetLedger: function (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate, _transTime,  _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur,_functionCallback)
     {
         //alert(_summaDebit);

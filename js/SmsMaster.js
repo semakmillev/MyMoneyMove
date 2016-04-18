@@ -161,7 +161,7 @@ function GetInfo()
 							for (var i=0; i < result.rows.length; i++) {                        
 								arrSender.push(result.rows.item(i).SENDER);
 							}
-							}); 
+							},errorHandler);
 					},function(){},
 					function(){					
 						GetTemplateFromTable();	

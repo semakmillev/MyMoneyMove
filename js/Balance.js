@@ -159,6 +159,10 @@ var Balance = {
 
             }, errorHandler);
         });
+    },
+    TieAccounts : function(_mainAccount,_childAccount){
+
+
     }
 
 }

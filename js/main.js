@@ -27,61 +27,6 @@ function GetSMS()
   listSMS('Alfa-Bank',dt);
 }
 
-
-function ShowAccounts()
-{
-    $("#accountList td").remove();
-    db.transaction(function(tx){
-
-        var sqlAccount =
-
-            "              SELECT A._ID _ID," +
-            "                    A.ACC ACC," +
-            "                    L.BALANCE BALANCE " +
-            "               FROM ACCOUNT A," +
-            "               LEDGER L, " +
-            "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
-            "          FROM (                 " +
-            "               SELECT MAX(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
-            "                 FROM LEDGER" +
-            "                GROUP BY DEBIT_ACC" +
-            "                UNION         " +
-            "               SELECT MAX(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
-            "                 FROM LEDGER" +
-            "                GROUP BY CREDIT_ACC)" +
-            "        GROUP BY ACC" +
-            "               ) MIN_L " +
-            " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
-            "   AND (L.DEBIT_ACC = A.ACC OR L.CREDIT_ACC = A.ACC) " +
-            "   AND MIN_L.ACC = A.ACC" +
-            "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
-            ;
-        /*  var sqlAccount =
-
-                "              SELECT A._ID _ID," +
-                "                    A.ACC ACC," +
-                "                    0 BALANCE " +
-                "               FROM ACCOUNT A";
-        */
-        tx.executeSql(sqlAccount, [], function(tx,result){
-            for (var i=0; i < result.rows.length; i++) {
-                //alert(result.rows.item(i).ACC);
-                var html = "";
-                var acc = new String();
-                var acc = result.rows.item(i).ACC;
-                html = html +'<tr onclick="Balance.CheckBalanceRow('+"'"+acc+"'"+',0)">\n';
-                html = html +'<td>'+result.rows.item(i)._ID+'</td>\n';
-                html = html +'<td>'+result.rows.item(i).ACC+'</td>\n';
-                html = html +'<td>'+result.rows.item(i).BALANCE+'</td>\n';
-                html = html +'</tr>\n';
-                $("#accountList > tbody").append(html);
-                $("#accountList").table("refresh");
-            }
-        },errorHandler);
-    });
-    $.mobile.changePage("#Accounts");
-}
-
 function ShowCategories(){
 
     $.mobile.changePage("#Categories");
@@ -94,70 +39,7 @@ function ShowCategoriesModal(){
 }
 
 
-function LoadCategories()
-{
-    $("#categoryContent").html('');
 
-   db.transaction(function(tx){
-           tx.executeSql("SELECT * FROM CATEGORY ORDER BY _ID", [], function(tx,result){
-                    var level = 0;
-                    var html = '';
-                    var parentID = '';
-                    var ID = '';
-                    var el;
-                    for (var i=0; i < result.rows.length; i++) {                        
-                      //alert(result.rows.item(i).ACC);
-                        var html = '';
-                        if(result.rows.item(i).PARENT == '')
-                        {
-                            html = html + '<div data-role="collapsible" data-iconpos="right" class="categoryList"';
-                            html = html + 'id="'+Translit(result.rows.item(i)._ID)+'"  value = "'+result.rows.item(i)._ID+'" >';
-                            html = html + '<h2 style="margin-bottom:1px !important;">'+result.rows.item(i).NAME+'</h2>\n';
-                            html = html =  html + '</div>';
-                           /* $(".categoryContent").append(html).collapsibleset();
-                            $(".categoryContent").collapsibleset('refresh');*/
-                            $("#ccC").append(html).collapsibleset();
-                            $("#ccC").collapsibleset('refresh');
-                        }else
-                        {   
-                                                                                    
-                            html = html + '<div data-role="collapsible" data-iconpos="right" data-collapsed="true" ';
-                            html = html + 'parentid = "'+Translit(result.rows.item(i).PARENT)+'" ';
-                            html = html + 'class="categoryList categoryChildList" id="'+Translit(result.rows.item(i)._ID)+'" ';
-                            html = html + 'value = "'+result.rows.item(i)._ID+'" >';
-                            html = html + '<h2 style="margin-bottom:1px !important;">'+result.rows.item(i).NAME+'</h2>\n';
-                            html = html + '</div>';
-                            el = $(html);
-                            el.collapsible().appendTo($("#"+Translit(result.rows.item(i).PARENT)+" div:first"));
-                            
-                        }
-                        //$("div[data-role='collapsible']").find("span.ui-icon').remove();
-                        
-                        ID = result.rows.item(i)._ID;                        
-                        
-                     }
-                    },errorHandler);
-                },function(){},
-                  function(){
-
-                    $('.categoryChildList').each(function() {
-                        var padding = $(this).attr('parentid').split('__').length * 15;
-                        $(this).find('a').css('padding-left',padding);
-                    });
-
-                    $('.categoryList').each(function() {
-
-                        if($(this).find('.categoryList').length==0){
-                            $(this).find('a.ui-collapsible-heading-toggle').each(
-                                function(){
-
-                                    $(this).removeClass('ui-btn-icon-right');
-                                });
-                        }
-                    });
-                  }
-     );
-} 
     
 
 function LoadBankList(){
@@ -186,23 +68,6 @@ function ShowBanks()
 {
     $.mobile.changePage("#Banks");
     LoadBankList();
-}
-function LoadBanks()
-{
-   $('.bankList option').remove();
-
-        db.transaction(function(tx){
-                tx.executeSql("SELECT * FROM BANK", [], function(tx,result){
-                    for (var i=0; i < result.rows.length; i++) {
-                      //alert(result.rows.item(i).CODE+' '+result.rows.item(i).NAME);
-                      var html = "";
-                      var html = '<option value="'+result.rows.item(i).CODE+'">'+result.rows.item(i).NAME+'</option>';
-                      $('.bankList').append(html);
-
-                    }
-                });
-    });
-
 }
 
 
@@ -302,101 +167,49 @@ var Category = {
 }
 
 
-var Account = {
-    setAccount: function (_id){
-       
-       //$('#accBankList').value = 2;
-        //var html = "";
-       // var html = '<option value="TEST">TEST</option>';
-       // $('#accBankList').append(html); 
-       
-       // alert('1');
-       if(_id==0)
-       {
-           var dt = new Date();
-           localStorage.accId = 0; 
-           $("#dateAcc")[0].value = _ConvertShortDate(dt);
-       }
-       else
-       {
-          db.transaction(function(tx){              
-                tx.executeSql("SELECT * FROM ACCOUNT WHERE _ID = ?", [_id], function(tx,result){
-                    for (var i=0; i < result.rows.length; i++) {                        
-                      $("#nameAcc")[0].value = result.rows.item(i).ACC;                                                                                                             
-                    }
-                },errorHandler); 
-          }); 
-       }
-        $.mobile.changePage("#AccountMenu", {
-                transition: 'pop',
-                role: 'dialog'
-            });
-    },
-    addAccount: function (){
-        $('#accBankList option').remove();   
-        db.transaction(function(tx){              
-                tx.executeSql("SELECT * FROM BANK ORDER BY DESC", [], function(tx,result){
-                    for (var i=0; i < result.rows.length; i++) {                        
-                      //alert(result.rows.item(i).ACC);
-                      var html = "";
-                      var html = '<option value="'+result.rows.item(i)._ID+'">'+result.rows.item(i).CODE+'</option>';
-                      $('#accBankList').append(html);                      
-                    }
-                }); });
-    
-        var dt = new Date();
-        localStorage.accId = 0;
-        $("#dateAcc")[0].value = _ConvertShortDate(dt);
-        $.mobile.changePage("#AccountMenu", {
-                transition: 'pop',
-                role: 'dialog'
-            });
-    }
-}
-
-
 function SetBank()
-{    
-   localStorage.bankId = 0;
-   SetBankDB(localStorage.bankId,
-             $("#nameBank")[0].value,
-             $("#codeBank")[0].value,
-             $("#bicBank")[0].value);               
-   LoadBanks();             
-   $("#BankMenu").dialog('close');
+{
+    localStorage.bankId = 0;
+    SetBankDB(localStorage.bankId,
+        $("#nameBank")[0].value,
+        $("#codeBank")[0].value,
+        $("#bicBank")[0].value);
+    LoadBanks();
+    $("#BankMenu").dialog('close');
 }
 function AddBank()
 {
-   localStorage.bankId = 0;
-   $.mobile.changePage("#BankMenu", {
+    localStorage.bankId = 0;
+    $.mobile.changePage("#BankMenu", {
         transition: 'pop',
         role: 'dialog'
-    });   
+    });
 }
 
 function GetSMSInfo()
 {
-  var db = openDatabase('MoneyDB', '1.0', 'Money Database', 10 * 1024 * 1024);
-  db.transaction(function(tx){
-               
-                tx.executeSql("SELECT * FROM SMS_TABLE where DONE = '0'", [], function(tx,result){
-                    for (var i=0; i < result.rows.length; i++) { 
-                      var SMS = [result.rows.item(i)._ID,
-                                 result.rows.item(i).SMS_TEXT,
-                                 result.rows.item(i).SMS_DATE,
-                                 result.rows.item(i).SENDER];  
-                      alert(result.rows.item(i).SMS_TEXT+" "+result.rows.item(i).SMS_DATE);               
-                      
-                      
-                    }
-                }); });     
+    var db = openDatabase('MoneyDB', '1.0', 'Money Database', 10 * 1024 * 1024);
+    db.transaction(function(tx){
+
+        tx.executeSql("SELECT * FROM SMS_TABLE where DONE = '0'", [], function(tx,result){
+            for (var i=0; i < result.rows.length; i++) {
+                var SMS = [result.rows.item(i)._ID,
+                    result.rows.item(i).SMS_TEXT,
+                    result.rows.item(i).SMS_DATE,
+                    result.rows.item(i).SENDER];
+                alert(result.rows.item(i).SMS_TEXT+" "+result.rows.item(i).SMS_DATE);
+
+
+            }
+        }); });
 }
 
 var Main = {
+
     SetTemplate : function(el){
         var txt = $(el.currentTarget).text().split('^')[3];
         var bank = $(el.currentTarget).attr("bank");
-         //alert(bank);
+        //alert(bank);
         $.mobile.changePage("#templateDlg", {
             transition: 'pop',
             role: 'dialog'
@@ -406,11 +219,151 @@ var Main = {
         $("#templateBank").prop("readonly", true);
     },
     AddTemplate : function(){
-      var txt = $("#templateText")[0].value;
-      var bank = $("#templateBank")[0].value;
-      var type = $("#templateType")[0].value;
-      DatabaseUnit.SetTemplate(bank,txt,type,GetInfo());
-      $("#templateDlg").dialog('close');
+        var txt = $("#templateText")[0].value;
+        var bank = $("#templateBank")[0].value;
+        var type = $("#templateType")[0].value;
+        DatabaseUnit.SetTemplate(bank,txt,type,GetInfo());
+        $("#templateDlg").dialog('close');
 
+    },
+    ShowAccounts : function()
+    {
+        $("#accountList td").remove();
+        db.transaction(function(tx){
+
+            var sqlAccount =
+
+                    "              SELECT A._ID _ID," +
+                        "                    A.ACC ACC," +
+                        "                    IFNULL(L.BALANCE,0) BALANCE " +
+                        "               FROM ACCOUNT A," +
+                        "               LEDGER L, " +
+                        "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+                        "          FROM (                 " +
+                        "               SELECT MAX(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+                        "                 FROM LEDGER" +
+                        "                GROUP BY DEBIT_ACC" +
+                        "                UNION         " +
+                        "               SELECT MAX(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+                        "                 FROM LEDGER" +
+                        "                GROUP BY CREDIT_ACC)" +
+                        "        GROUP BY ACC" +
+                        "               ) MIN_L " +
+                        " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+                        "   AND (L.DEBIT_ACC = A.ACC OR L.CREDIT_ACC = A.ACC) " +
+                        "   AND MIN_L.ACC = A.ACC" +
+                        "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
+                ;
+            /*  var sqlAccount =
+
+             "              SELECT A._ID _ID," +
+             "                    A.ACC ACC," +
+             "                    0 BALANCE " +
+             "               FROM ACCOUNT A";
+             */
+            // Balance.CheckBalanceRow
+            tx.executeSql(sqlAccount, [], function(tx,result){
+                for (var i=0; i < result.rows.length; i++) {
+                    //alert(result.rows.item(i).ACC);
+                    var html = "";
+                    var acc = new String();
+                    var acc = result.rows.item(i).ACC;
+                    html = html +'<tr onclick="Account.setAccount('+result.rows.item(i)._ID+')">\n';
+                    html = html +'<td>'+result.rows.item(i)._ID+'</td>\n';
+                    html = html +'<td>'+result.rows.item(i).ACC+'</td>\n';
+                    html = html +'<td>'+result.rows.item(i).BALANCE+'</td>\n';
+                    html = html +'</tr>\n';
+                    $("#accountList > tbody").append(html);
+                    $("#accountList").table("refresh");
+                }
+            },errorHandler);
+        });
+        $.mobile.changePage("#Accounts");
+    },
+    LoadBanks: function (_el) {
+
+
+        db.transaction(function (tx) {
+            tx.executeSql("SELECT * FROM BANK", [], function (tx, result) {
+
+                //_el.html('');
+                $(".bankList").html('');
+                //$('#bankList').append('<option value=""></option>');
+                for (var i = 0; i < result.rows.length; i++) {
+                    //alert(result.rows.item(i).CODE+' '+result.rows.item(i).NAME);
+                    var html = "";
+                    var html = '<option value="' + result.rows.item(i).CODE + '">' + result.rows.item(i).NAME + '</option>';
+
+                    $(".bankList").append(html);
+                    //_el.append(html);
+                    //_el.selectmenu("refresh", true);
+
+                }
+            });
+        });
+
+    },
+
+    LoadCategories: function () {
+        $("#categoryContent").html('');
+
+        db.transaction(function (tx) {
+                tx.executeSql("SELECT * FROM CATEGORY ORDER BY _ID", [], function (tx, result) {
+                    var level = 0;
+                    var html = '';
+                    var parentID = '';
+                    var ID = '';
+                    var el;
+                    for (var i = 0; i < result.rows.length; i++) {
+                        //alert(result.rows.item(i).ACC);
+                        var html = '';
+                        if (result.rows.item(i).PARENT == '') {
+                            html = html + '<div data-role="collapsible" data-iconpos="right" class="categoryList"';
+                            html = html + 'id="' + Translit(result.rows.item(i)._ID) + '"  value = "' + result.rows.item(i)._ID + '" >';
+                            html = html + '<h2 style="margin-bottom:1px !important;">' + result.rows.item(i).NAME + '</h2>\n';
+                            html = html = html + '</div>';
+                            /* $(".categoryContent").append(html).collapsibleset();
+                             $(".categoryContent").collapsibleset('refresh');*/
+                            $("#ccC").append(html).collapsibleset();
+                            $("#ccC").collapsibleset('refresh');
+                        } else {
+
+                            html = html + '<div data-role="collapsible" data-iconpos="right" data-collapsed="true" ';
+                            html = html + 'parentid = "' + Translit(result.rows.item(i).PARENT) + '" ';
+                            html = html + 'class="categoryList categoryChildList" id="' + Translit(result.rows.item(i)._ID) + '" ';
+                            html = html + 'value = "' + result.rows.item(i)._ID + '" >';
+                            html = html + '<h2 style="margin-bottom:1px !important;">' + result.rows.item(i).NAME + '</h2>\n';
+                            html = html + '</div>';
+                            el = $(html);
+                            el.collapsible().appendTo($("#" + Translit(result.rows.item(i).PARENT) + " div:first"));
+
+                        }
+                        //$("div[data-role='collapsible']").find("span.ui-icon').remove();
+
+                        ID = result.rows.item(i)._ID;
+
+                    }
+                }, errorHandler);
+            }, function () {
+            },
+            function () {
+
+                $('.categoryChildList').each(function () {
+                    var padding = $(this).attr('parentid').split('__').length * 15;
+                    $(this).find('a').css('padding-left', padding);
+                });
+
+                $('.categoryList').each(function () {
+
+                    if ($(this).find('.categoryList').length == 0) {
+                        $(this).find('a.ui-collapsible-heading-toggle').each(
+                            function () {
+
+                                $(this).removeClass('ui-btn-icon-right');
+                            });
+                    }
+                });
+            }
+        );
     }
 }

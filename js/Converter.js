@@ -49,9 +49,21 @@ var Converter = {
         var year = Converter.GetFieldValue(_text, _template, 'YYYY');
         var month = Converter.GetFieldValue(_text, _template, 'MM') - 1;
         var day = Converter.GetFieldValue(_text, _template, 'DD');
-        var hour = Converter.GetFieldValue(_text, _template, 'HH24');
-        var minute = Converter.GetFieldValue(_text, _template, 'MI');
-        var second = Converter.GetFieldValue(_text, _template, 'SS');
+        var hour = 0;
+        var minute = 0;
+        var second = 0;
+        if(_template.indexOf("HH24")>=0){
+            var hour = Converter.GetFieldValue(_text, _template, 'HH24');
+        }
+        if(_template.indexOf("MI")>=0){
+            var minute = Converter.GetFieldValue(_text, _template, 'MI');
+        }
+        if(_template.indexOf("SS")>=0){
+            var second = Converter.GetFieldValue(_text, _template, 'SS');
+        }
+
+
+
         var dt = new Date(year, month, day, hour, minute, second);
         return dt;
 
@@ -60,11 +72,15 @@ var Converter = {
         var year = _date.getFullYear();
         var month = Converter.AddZero(_date.getMonth() + 1);
         var day = Converter.AddZero(_date.getDate());
-        var hour = Converter.AddZero(_date.getHours());
+        var hour = Converter.AddZero(_date.getHours()).toString();
         var minute = Converter.AddZero(_date.getMinutes());
-        var secod = Converter.AddZero(_date.getSeconds());
-        return _template.replaceAll("YYYY", year).replaceAll("MM", month).replaceAll("DD", day)
-                        .replaceAll("HH24", hour).replaceAll("MI",minute).replaceAll("SS",secod);
+        var second = Converter.AddZero(_date.getSeconds());
+        return _template.replaceAll("YYYY", year)
+                        .replaceAll("MM", month)
+                        .replaceAll("DD", day)
+                        .replaceAll("HH24", hour)
+                        .replaceAll("MI",minute)
+                        .replaceAll("SS",second);
                 ;
     },
     Example: function () {
