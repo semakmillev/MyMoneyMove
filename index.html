@@ -1,0 +1,212 @@
+﻿<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1; charset=cp1251">
+
+    <link rel="stylesheet" href="jq/jquery.mobile-1.4.5.min.css"/>
+    <script src="jq/jquery-1.12.2.min.js"></script>
+    <script src="jq/jquery.mobile-1.4.5.min.js"></script>
+    <script src="jq/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="css/ex.css"/>
+    <script src="js/Converter.js"></script>
+    <script src="js/SMS.js"></script>
+    <script src="js/Test.js"></script>
+    <script src="js/Db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/Account.js"></script>
+    <script src="js/SmsMaster.js"></script>
+    <script src="jq/jquery.ui.datepicker.js"></script>
+    <script src="js/Ledger.js"></script>
+    <script src="js/LP.js"></script>
+    <script src="js/Balance.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <link rel="stylesheet" href="jq/jquery.mobile.datepicker.css"/>
+</head>
+<body>
+<!-----------------------------------------YN----------------------------------->
+<!a href="#popupDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all
+ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"><!/a>
+
+<!-----------------------------------------MAIN--------------------------------->
+<style type="text/css">
+    .ui-page {
+        background-color: white !important;
+    }
+    #Account .ui-content{
+        top:0px;
+    }
+    .ui-btn {
+        -moz-box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        overlay: none !important;
+    }
+
+    .ui-dialog-contain {
+        opacity: 1 !important;
+        background: #FFFFFF !important;
+    }
+
+    .ui-dialog .ui-header .ui-btn-icon-notext {
+        display: none !important;
+    }
+
+    .ui-dialog-background {
+        opacity: 0.5;
+        display: block !important;
+        -webkit-transition: opacity 0.5s ease-in;
+    }
+
+    .ui-dialog-background.pop.in {
+        opacity: 1;
+        -webkit-transition: opacity 0.5s ease-in;
+    }
+
+    .ui-dialog {
+        min-height: 100% !important;
+        background: transparent !important;
+    }
+
+    .ui-panel-inner {
+        padding: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .ui-controlgroup {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-top: 40px !important;
+    }
+</style>
+<script type="text/javascript">
+    // transparent-dialogue.
+    $(document).delegate('[data-role="dialog"]', 'pagebeforeshow', function (e, ui) {
+        ui.prevPage.addClass("ui-dialog-background ");
+    });
+
+    $(document).delegate('[data-role="dialog"]', 'pagehide', function (e, ui) {
+        $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+    });
+
+    $(document).on("pageinit", "#mainPage", function () {
+        $(document).on("swipeleft swiperight", "#mainPage", function (e) {
+            // We check if there is no open panel on the page because otherwise
+            // a swipe to close the left panel would also open the right panel (and v.v.).
+            // We do this by checking the data that the framework stores on the page element (panel: open).
+            if ($.mobile.activePage.jqmData("panel") !== "open") {
+                if (e.type === "swiperight") {
+                    $("#mainMenu").panel("open");
+                }
+            }
+        });
+    });
+    $(document).on("pageinit", "#Accounts", function () {
+        $(document).on("swipeleft swiperight", "#Accounts", function (e) {
+            // We check if there is no open panel on the page because otherwise
+            // a swipe to close the left panel would also open the right panel (and v.v.).
+            // We do this by checking the data that the framework stores on the page element (panel: open).
+            if ($.mobile.activePage.jqmData("panel") !== "open") {
+                if (e.type === "swiperight") {
+                    $("#accountMenu").panel("open");
+                }
+            }
+        });
+    });
+
+</script>
+<script>
+    function onLoad() {
+        if (( /(ipad|iphone|ipod|android)/i.test(navigator.userAgent) )) {
+            document.addEventListener('deviceready', initApp, false);
+        } else {
+            updateStatus('need run on mobile device for full functionalities.');
+        }
+
+    }
+
+</script>
+
+<div data-role="page" id="mainPage" style="height: auto">
+    <div data-role="panel" data-display="overlay" id="mainMenu" data-theme="a">
+        <div id="#leftSideMenu" data-role="controlgroup" data-corners="false">
+            <a data-role="button" onclick="Main.ShowAccounts()">Счета</a>
+        </div>
+    </div>
+    <div data-role="header">
+        <h1>Swipe left or right</h1>
+        <a href="#mainMenu" data-theme="d" data-icon="arrow-r" data-iconpos="notext" data-shadow="false"
+           data-iconshadow="false" class="ui-icon-nodisc">Open left panel</a>
+    </div>
+    <!-- /header -->
+    <div data-role="content">
+    </div>
+    <!-- /content -->
+
+    <!-- /panel -->
+    <div data-role="panel" id="right-panel" data-display="push" data-position="right" data-theme="c">
+        <p>Right push panel.</p>
+        <a href="#" data-rel="close" data-role="button" data-mini="true" data-inline="true" data-icon="delete"
+           data-iconpos="right">Close</a>
+
+    <!------>
+    </div>
+</div>
+
+<div data-role="page" id="Accounts" style="height: auto">
+    <script>
+        $(document).on("pagecreate","#Accounts",function(){
+
+        });
+
+    </script>
+    <div data-role="panel" data-display="overlay" id="accountMenu" data-theme="a">
+        <div data-role="controlgroup" data-corners="false">
+            <a data-role="button" onclick="Main.ShowAccounts()">Счета</a>
+        </div>
+    </div>
+    <div data-role="header" data-theme="a">
+
+        <a data-rel="back" data-icon="back" class="ui-btn-left">Назад</a>
+        <h1>Money</h1>
+    </div>
+    <div data-role="content">
+        <table data-role="table" id="accountList"  class="ui-body-d ui-shadow table-stripe ui-responsive" data-column-btn-theme="b">
+            <thead>
+            <tr class="ui-bar-d">
+                <th data-priority="1">Имя</th>
+                <th data-priority="1">Счет</th>
+                <th data-priority="1">Баланс</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
+    </div>
+    <div data-role="footer">
+        <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccountDialog(0)" data-rel="dialog">Добавить счет</a>
+        <a data-icon="plus" class="ui-btn-add" onclick="Balance.CheckBalance()" data-rel="dialog">Счета из журнала</a>
+    </div>
+
+</div>
+<div data-role="page" id="AccountPopup">
+    <div data-role="content">
+        <ul data-role="listview">
+            <li>Выписка</li>
+            <li>Удалить</li>
+        </ul>
+    </div>
+</div>
+
+
+
+</body>
+</html>.
