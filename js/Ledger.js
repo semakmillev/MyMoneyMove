@@ -60,14 +60,15 @@ var Ledger = {
         });
     }
     ,
-    Check : function(){
-        db.transaction(function(tx){
-            tx.executeSql("SELECT * FROM LEDGER ORDER BY DEBIT_ACC,NUM_DATE", [], function(tx,result){
+    Check : function(){db.transaction(function(tx){
+            tx.executeSql("SELECT * FROM LEDGER WHERE DEBIT_ACC = '408*28875' OR CREDIT_ACC = '408*28875' AND SUMMA_CREDIT != 0 " +
+                          " ORDER BY NUM_DATE", [], function(tx,result){
                 for (var i=0; i < result.rows.length; i++) {
                     //alert(result.rows.item(i).ACC);
                     var html = "";
                     html = html +"<tr journalId='"+result.rows.item(i)._ID+"' onclick='Ledger.LedgerClick(this)'>\n";
-                    html = html +"<td>"+result.rows.item(i).SMS_ID+"</td>\n";
+                    html = html +"<td>"+result.rows.item(i)._ID+"</td>\n";
+                    html = html +"<td>"+result.rows.item(i).NEXT_ID+"</td>\n";
                     html = html +"<td>"+result.rows.item(i).DEBIT_ACC+"</td>\n";
                     html = html +"<td>"+Ledger.addZero2End(result.rows.item(i).SUMMA_DEBIT)+"</td>\n";
                     //html = html +"<td>"+result.rows.item(i).KREDIT_ACC+"</td>\n";
@@ -105,6 +106,7 @@ var Ledger = {
                         ledgerEl.attr("_ID",result.rows.item(i)._ID);
                         ledgerEl.attr("DEBIT_ACC",result.rows.item(i).DEBIT_ACC);
                         ledgerEl.attr("CREDIT_ACC",result.rows.item(i).CREDIT_ACC);
+                        ledgerEl.attr("NEXT_ID",result.rows.item(i).NEXT_ID);
                         ledgerEl.attr("BANK",result.rows.item(i).BANK);
                         ledgerEl.attr("SUMMA_DEBIT",result.rows.item(i).SUMMA_DEBIT);
                         ledgerEl.attr("CUR_DEBIT",result.rows.item(i).CUR_DEBIT);
@@ -143,6 +145,7 @@ var Ledger = {
     },
     FillFields : function(){
         $("#journalBankList").val($("#Ledger").attr("BANK")).attr('selected', true).siblings('option').removeAttr('selected');
+
         $("#journalBankList").selectmenu("refresh", true);
         if($("#Ledger").attr("CREDIT_ACC")=="OUT"){
             $('#SpendingBar a').addClass('ui-btn-active');
@@ -188,6 +191,7 @@ var Ledger = {
         // (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate, _transTime, _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur)
         DatabaseUnit.SetLedger(
             ledgerEl.attr("_ID"),
+            ledgerEl.attr("NEXT_ID"), //next_id
             ledgerEl.attr("DEBIT_ACC"),//debit,
             ledgerEl.attr("CREDIT_ACC"),
             ledgerEl.attr("BANK"),//sms.bank,
@@ -229,6 +233,211 @@ var Ledger = {
             Ledger.SetCategory(_id,$(el).attr("_value"));
         };
 
+
+
+    },
+    SetChain : function(){
+        var tst = '408*28875';
+        var sql = "SELECT * " +
+                  "  FROM LEDGER WHERE (CREDIT_ACC = ? OR DEBIT_ACC = ?) " +
+                  "   AND SUMMA_DEBIT <> 0 AND NEXT_ID = 0 ORDER BY NUM_DATE";
+        db.transaction(function(tx){
+           tx.executeSql(sql,[tst,tst],function(tx,rs){
+               var arrLedger = [];
+               var arrLedgerNext = [];
+               for (var i=0; i < rs.rows.length; i++) {
+                   var row = rs.rows.item(i);
+                   var ledger = [row._ID,
+                                 row.BALANCE,
+                                 row.BALANCE_CUR,
+                                 row.SUMMA_DEBIT,
+                                 row.CUR_DEBIT,
+                                 row.SUMMA_CREDIT,
+                                 row.CUR_CREDIT,
+                                 row.DEBIT_ACC,
+                                 row.CREDIT_ACC,
+                                 0]; // NEXT_ID
+                   arrLedger.push(ledger);
+                   arrLedgerNext.push(ledger);
+               };
+
+               for (var i = 0; i < arrLedger.length; i++) {
+                   if(arrLedger[i][1]==''){
+                       arrLedger[i][1]=0;
+                   }
+
+                   for (var j = 0; j < arrLedgerNext.length; j++) {
+                       var prevBal = 0;
+
+                       if (tst == arrLedgerNext[j][7]) {
+                           prevBal = parseFloat(arrLedgerNext[j][1]) + parseFloat(arrLedgerNext[j][3]);
+                       } else {
+                           prevBal = parseFloat(arrLedgerNext[j][1]) - parseFloat(arrLedgerNext[j][5]);
+                       }
+                       //if(parseFloat(prevBal) == parseFloat(arrLedger[i][1])){
+                       if (parseFloat(arrLedger[i][1]) == prevBal.toFixed(2)) {
+                           arrLedger[i][9] = arrLedgerNext[j][0];
+                           break;
+                       }
+
+
+                   }
+               };
+               for (var i = 0; i < arrLedger.length; i++) {
+                   if (arrLedger[i][9] == 0 && arrLedger[i][1] != 0) {
+
+                       for (var j = i + 1; j < arrLedger.length; j++) {
+                           var isParent = false;
+                           for (var k = 0; k < arrLedger.length; k++) {
+                               isParent = arrLedger[k][9] == arrLedger[j][0];
+                               if(isParent){
+                                   break;
+                               }
+                           }
+                           //alert(isParent);
+                           if (!isParent) {
+                               alert(arrLedger[i][0]+' '+arrLedger[j][0]);
+                               if (arrLedger[j][1] == 0) {
+                                   arrLedger[i][9] = arrLedger[j][0];
+                               }
+                               break;
+                           }
+                       }
+                   }
+               }
+
+               for (var i = 0; i < arrLedger.length; i++) {
+                   if (arrLedger[i][9] == 0 && arrLedger[i][1] == 0) {
+                       //alert('!');
+                       arrLedger.find(function(el,index,arr){
+                           if(el[9]==arrLedger[i][0]){
+                               var nextBal;
+                               if (tst == arrLedger[i][7]) {
+                                   nextBal = parseFloat(el[1]) - parseFloat(arrLedger[i][3]);
+                               } else {
+                                   nextBal = parseFloat(el[1]) + parseFloat(arrLedger[i][5]);
+                               }
+                               arrLedger[i][1] = nextBal;
+                               return true;
+                           }
+                           return false;
+                       })
+
+                   }
+               }
+               arrLedgerNext = arrLedger;
+               for (var i = 0; i < arrLedger.length; i++) {
+
+                   if (arrLedger[i][9] == 0) {
+                       //alert(arrLedger[i][0]+' '+arrLedgerNext.length);
+                       for (var j = 0; j < arrLedgerNext.length; j++) {
+                           var prevBal = 0;
+
+                           if (tst == arrLedgerNext[j][7]) {
+                               prevBal = parseFloat(arrLedgerNext[j][1]) + parseFloat(arrLedgerNext[j][3]);
+                           } else {
+                               prevBal = parseFloat(arrLedgerNext[j][1]) - parseFloat(arrLedgerNext[j][5]);
+                           }
+                           //if(parseFloat(prevBal) == parseFloat(arrLedger[i][1])){
+                           if (parseFloat(arrLedger[i][1]) == prevBal.toFixed(2)) {
+                               arrLedger[i][9] = arrLedgerNext[j][0];
+                               break;
+                           }
+
+
+                       }
+                   }
+               };
+               var max = arrLedger[arrLedger.length - 1][0];
+               for(var i=0; i < arrLedger.length; i++){
+                   if(arrLedger[i][9]==0){
+                     for(var j=i+1; j < arrLedger.length; j++){
+                         if(arrLedger[j][9]!=0) {
+                             var isParent = false;
+                             for (var k = 0; k < arrLedger.length; k++) {
+                                 isParent = arrLedger[k][9] == arrLedger[j][0];
+                                 if(isParent){
+                                     break;
+                                 }
+                             }
+                             if (!isParent) {
+                                 max = max + 1;
+                                 var summa = parseFloat(arrLedger[j][1])-parseFloat(arrLedger[i][1])+parseFloat(arrLedger[j][3]);
+                                 var balance = summa + parseFloat(arrLedger[i][1]);
+                                 var cur = arrLedger[i][2];
+                                 var debitAcc;
+                                 var creditAcc;
+                                 if(summa > 0){
+                                     debitAcc = 'OUT';
+                                     creditAcc = tst;
+                                 }else{
+                                     creditAcc = 'OUT';
+                                     debitAcc = tst;
+
+                                 }
+                                 summa = Math.abs(summa);
+                                 var ledger = [max,
+                                     balance,
+                                     cur,
+                                     summa,
+                                     cur,
+                                     summa,
+                                     cur,
+                                     debitAcc,
+                                     creditAcc,
+                                     arrLedger[j][0]]; // NEXT_ID
+                                 arrLedger[i][9] = max;
+                                 arrLedger.push(ledger);
+                                 break;
+                             }
+                         }
+                     }
+                   }
+               }
+//
+               var arrLedgerView = new Array();
+               for (var i=0; i < arrLedger.length; i++) {
+                   arrLedgerView[arrLedger[i][0]] = arrLedger[i];
+               }
+               var parent = 0;
+               var current = arrLedger[0][0];
+               do{
+                   var html = "";
+                   var parent = arrLedgerView[current][9];
+                   //html = html +"<tr journalId='"+arrLedger[i][0]+"'>\n";
+                   html = html +"<tr journalId='"+arrLedgerView[i][0]+"' onclick='Ledger.LedgerClick(this)'>\n";
+                   html = html +"<td>"+arrLedgerView[current][0]+"</td>\n";
+                   html = html +"<td>"+arrLedgerView[current][9]+"</td>\n";
+                   html = html +"<td>"+arrLedgerView[current][7]+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedgerView[current][3])+"</td>\n";
+                   html = html +"<td>"+arrLedgerView[current][8]+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedgerView[current][4])+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedgerView[current][1])+"</td>\n";
+                   html = html +"</tr>\n";
+                   $("#table > tbody").append(html);
+                   $("#table").table("refresh");
+                   current = parent;
+               }while(parent != 0)
+               /*
+               for (var i=0; i < arrLedgerView.length; i++) {
+                   //alert(result.rows.item(i).ACC);
+                   var html = "";
+                   //html = html +"<tr journalId='"+arrLedger[i][0]+"'>\n";
+                   html = html +"<tr journalId='"+arrLedger[i][0]+"' onclick='Ledger.LedgerClick(this)'>\n";
+                   html = html +"<td>"+arrLedger[i][0]+"</td>\n";
+                   html = html +"<td>"+arrLedger[i][9]+"</td>\n";
+                   html = html +"<td>"+arrLedger[i][7]+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedger[i][3])+"</td>\n";
+                   html = html +"<td>"+arrLedger[i][8]+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedger[i][4])+"</td>\n";
+                   html = html +"<td>"+Ledger.addZero2End(arrLedger[i][1])+"</td>\n";
+                   html = html +"</tr>\n";
+                   $("#table > tbody").append(html);
+                   $("#table").table("refresh");
+               }*/
+
+           },errorHandler);
+        });
 
 
     }

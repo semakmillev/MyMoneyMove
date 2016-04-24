@@ -6,6 +6,7 @@ var sqlSmsParams = "CREATE TABLE IF NOT EXISTS SMS_PARAMS("+
                    
 var sqlLedger = "CREATE TABLE IF NOT EXISTS LEDGER("+
                 "_ID INTEGER primary key NOT NULL  UNIQUE, "+
+                "NEXT_ID, " +
                 "DEBIT_ACC, " +
                 "CREDIT_ACC, " +
                 "BANK, " +
@@ -199,33 +200,7 @@ function SetBankDB(_id,_name,_code,_bic)
     }
 }
 
-function DeleteAccountDB(_id)
-{
-    var sqlDelete = "DELETE FROM ACCOUNT WHERE _ID = ?";
-    db.transaction(function(tx){tx.executeSql(sqlDelete, [_id]);
-                 });
-}
-function SetAccountDB(_id,_acc,_parentId,_bank,_name,_type,_cur,_dateOpen,_start_balance, _comments)
-{
-    var sqlInsert = "INSERT INTO ACCOUNT(ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) VALUES(?,?,?,?,?,?,?,?,?)";
-    var sqlInsertId = "INSERT INTO ACCOUNT1(_ID,ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) VALUES(?,?,?,?,?,?,?,?,?,?)";
-    
-    if(_id != 0){
-        DeleteAccount(_id);
-        db.transaction(function(tx){tx.executeSql(sqlInsertId,
-                                                 [_id,_acc,_parentId,_bank,_name,_type,_cur,_dateOpen,_start_balance,_comments],
-                                                 function(){console.log('ok')},
-                                                 errorHandler
-                                                 )
-                                    });            
-    }else{
-        db.transaction(function(tx){tx.executeSql(sqlInsert,
-                                                 [_acc,_parentId, _bank,_name,_type,_cur,_dateOpen,_start_balance,_comments],
-                                                 function(){console.log('ok')},
-                                                 errorHandler
-                                                 )});
-    }
-}
+
 
 function InsertSMS(_id, _sender, _smsText, _smsDate)
 {
@@ -457,6 +432,39 @@ function SaveTrain()
  "TRANS_DATE,  PLACE, COMMENTS, SUMMA_RUR, BALANCE, BALANCE_CUR
  */
 var DatabaseUnit = {
+    DeleteAccountDB: function (_id) {
+        var sqlDelete = "DELETE FROM ACCOUNT WHERE _ID = ?";
+        db.transaction(function (tx) {
+            tx.executeSql(sqlDelete, [_id]);
+        });
+    },
+    SetAccountDB: function (_id, _acc, _parentAcc, _bank, _name, _type, _cur, _dateOpen, _start_balance, _comments) {
+        var sqlInsert = "INSERT INTO ACCOUNT(ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) VALUES(?,?,?,?,?,?,?,?,?)";
+        var sqlInsertId = "INSERT INTO ACCOUNT(_ID,ACC,PARENT_ACC,BANK,NAME,TYPE,CUR,DATE_OPEN,START_BALANCE,COMMENTS) VALUES(?,?,?,?,?,?,?,?,?,?)";
+
+        if (_id != '0') {
+            DatabaseUnit.DeleteAccountDB(_id);
+            db.transaction(function (tx) {
+                tx.executeSql(sqlInsertId,
+                    [_id, _acc, _parentAcc, _bank, _name, _type, _cur, _dateOpen, _start_balance, _comments],
+                    function () {
+                        console.log('ok')
+                    },
+                    errorHandler
+                )
+            });
+        } else {
+            db.transaction(function (tx) {
+                tx.executeSql(sqlInsert,
+                    [_acc, _parentAcc, _bank, _name, _type, _cur, _dateOpen, _start_balance, _comments],
+                    function () {
+                        console.log('ok')
+                    },
+                    errorHandler
+                )
+            });
+        }
+    },
     DropCreateTable: function (_tableName, _createScript,_callback) {
         //alert(_createScript);
         var deleteScript = "DELETE FROM " + _tableName;
@@ -513,7 +521,7 @@ var DatabaseUnit = {
         });
     },
     LoadLedger: function(){
-        DatabaseUnit.SetLedger(0,'OUT','CASH','',0,'RUR','','01.01.2000','00:00:00','','',0,'RUR',0,'RUR');
+        DatabaseUnit.SetLedger(0,0,'OUT','CASH','',0,'RUR','','01.01.2000','00:00:00','','',0,'RUR',0,'RUR');
     },
     LoadBanks: function(){
         db.transaction(function (tx) {
@@ -562,39 +570,39 @@ var DatabaseUnit = {
     },
     LoadAccounts: function(){
         var dt = new Date();
-        SetAccountDB(0,"CASH",'','','Наличные','Наличные',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
-        SetAccountDB(0,"OUT",'','','Внешний источник','Технический',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+        DatabaseUnit.SetAccountDB(0,"CASH",'','','Наличные','Наличные',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
+        DatabaseUnit.SetAccountDB(0,"OUT",'','','Внешний источник','Технический',"RUR",Converter.DateToStr(dt,"DD.MM.YYYY"),0,'');
     },
-    SetLedger: function (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate, _transTime,  _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur,_functionCallback)
+    SetLedger: function (_id, _nextId, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate, _transTime,  _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur,_functionCallback)
     {
         //alert(_summaDebit);
         var dt = new Date();
         var transTime = _transTime;
         if(transTime == ""){
             transTime = "00:00:00";
-            alert('!');
+            //alert('!');
         }
         try{
             dt = Converter.StrToDate(_transDate+" "+transTime,"DD.MM.YYYY HH24:MI:SS");
         }catch (err){
-            alert(transTime=='');
+            //alert(transTime=='');
         }
 
         //alert(dt);
-        var sqlInsert =  "INSERT INTO LEDGER (DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
-                         "                    SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        var sqlInsertId =   "INSERT INTO LEDGER (_ID, DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
-                            "                   SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        var sqlInsert =  "INSERT INTO LEDGER (NEXT_ID, DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
+                         "                    SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        var sqlInsertId =   "INSERT INTO LEDGER (_ID,NEXT_ID, DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
+                            "                   SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         db.transaction(function (tx) {
             if(_id == 0){
                 //alert(sqlInsert);
-                tx.executeSql(sqlInsert,[_debitAcc, _creditAcc, _bank,
+                tx.executeSql(sqlInsert,[_nextId,_debitAcc, _creditAcc, _bank,
                                          _summaDebit, _curDebit, _smsId,
                                          _transDate, transTime, dt.getTime(),_place, _comments,
                                          _summaCredit,_curCredit, _balance, _balanceCur],_functionCallback,errorHandler);
             } else{
                 tx.executeSql("DELETE FROM LEDGER WHERE _ID = ?",[_id],function(){},errorHandler);
-                tx.executeSql(sqlInsertId, [_id, _debitAcc, _creditAcc, _bank,
+                tx.executeSql(sqlInsertId, [_id, _nextId, _debitAcc, _creditAcc, _bank,
                                             _summaDebit, _curDebit, _smsId, _transDate,
                                             transTime,dt.getTime(),
                                             _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur],_functionCallback,errorHandler);

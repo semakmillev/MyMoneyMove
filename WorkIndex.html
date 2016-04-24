@@ -13,7 +13,7 @@ and open the template in the editor.
     <script src="jq/jquery-1.12.2.min.js"></script>
     <script src="jq/jquery.mobile-1.4.5.min.js"></script>
     <script src="jq/jquery.cookie.js"></script>
-    <link rel="stylesheet" href="../HTML/css/ex.css"/>
+    <link rel="stylesheet" href="css/ex.css"/>
     <script src="js/Converter.js"></script>
     <script src="js/SMS.js"></script>
     <script src="js/Test.js"></script>
@@ -154,11 +154,18 @@ ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"><!/a>
         <p>Right push panel.</p>
         <a href="#" data-rel="close" data-role="button" data-mini="true" data-inline="true" data-icon="delete"
            data-iconpos="right">Close</a>
-    </div>
-    <!------>
 
+    <!------>
+    </div>
 </div>
+
 <div data-role="page" id="Accounts" style="height: auto">
+    <script>
+        $(document).on("pagecreate","#Accounts",function(){
+
+        });
+
+    </script>
     <div data-role="panel" data-display="overlay" id="accountMenu" data-theme="a">
         <div data-role="controlgroup" data-corners="false">
             <a data-role="button" onclick="Main.ShowAccounts()">Счета</a>
@@ -185,49 +192,21 @@ ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"><!/a>
         <!--<a href="Exercise.html" data-role="button">Excercises</a>-->
     </div>
     <div data-role="footer">
-        <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccount(0)" data-rel="dialog">Добавить счет</a>
+        <a data-icon="plus" class="ui-btn-add" onclick="Account.setAccountDialog(0)" data-rel="dialog">Добавить счет</a>
         <a data-icon="plus" class="ui-btn-add" onclick="Balance.CheckBalance()" data-rel="dialog">Счета из журнала</a>
     </div>
+
 </div>
-<div data-role="page" id="Account">
-    <div data-role="header" data-theme="d">
-        <h1>Счет</h1>
-    </div>
+<div data-role="page" id="AccountPopup">
     <div data-role="content">
-        <label for="nameAcc">Имя:</label>
-        <input type="text" name="nameAcc" id="nameAcc" value="" data-mini="true" />
-        <label for="codeAcc">Код Счета\Карты</label>
-        <input type="text" name="codeAcc" id="codeAcc" value="" data-mini="true" />
-        <div class="ui-field-contain">
-            <label for="accTypeList" class="select" >Тип:</label>
-            <select name="accTypeList" id="accTypeList" text = "">
-                <option>Наличные</option>
-                <option>Дебетовая карта</option>
-                <option>Кредитная карта</option>
-                <option>Мультивалютная карта</option>
-                <option>Счет</option>
-                <option>Вклад</option>
-            </select>
-        </div>
-        <div class="ui-field-contain">
-            <label for="accBankList" class="select">Банк:</label>
-            <select class="bankList" name="accBankList" id="accBankList">
-            </select>
-
-        </div>
-        <div class="ui-field-contain">
-            <label for="accParentAcc" class="select">Счет</label>
-            <select class="accList" name="accParentAcc" id="accParentAcc">
-            </select>
-        </div>
-        <label for="dateAcc">Дата открытия:</label>
-        <input type="date" name="dateAcc" id="dateAcc" value=""  />
-
-    </div>
-    <div data-role="footer">
-        <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="SetAcc()" data-rel="dialog">Next3</a>
+        <ul data-role="listview">
+            <li>Выписка</li>
+            <li>Удалить</li>
+        </ul>
     </div>
 </div>
+
+
 
 </body>
 </html>.

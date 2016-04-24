@@ -226,7 +226,7 @@ var Main = {
         $("#templateDlg").dialog('close');
 
     },
-    ShowAccounts : function()
+    LoadAccounts : function()
     {
         $("#accountList td").remove();
         db.transaction(function(tx){
@@ -234,25 +234,25 @@ var Main = {
             var sqlAccount =
 
                     "              SELECT A._ID _ID," +
-                        "                    A.ACC ACC," +
-                        "                    IFNULL(L.BALANCE,0) BALANCE " +
-                        "               FROM ACCOUNT A," +
-                        "               LEDGER L, " +
-                        "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
-                        "          FROM (                 " +
-                        "               SELECT MAX(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
-                        "                 FROM LEDGER" +
-                        "                GROUP BY DEBIT_ACC" +
-                        "                UNION         " +
-                        "               SELECT MAX(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
-                        "                 FROM LEDGER" +
-                        "                GROUP BY CREDIT_ACC)" +
-                        "        GROUP BY ACC" +
-                        "               ) MIN_L " +
-                        " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
-                        "   AND (L.DEBIT_ACC = A.ACC OR L.CREDIT_ACC = A.ACC) " +
-                        "   AND MIN_L.ACC = A.ACC" +
-                        "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
+                    "                    A.ACC ACC," +
+                    "                    IFNULL(L.BALANCE,0) BALANCE " +
+                    "               FROM ACCOUNT A," +
+                    "               LEDGER L, " +
+                    "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+                    "          FROM (                 " +
+                    "               SELECT MAX(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+                    "                 FROM LEDGER" +
+                    "                GROUP BY DEBIT_ACC" +
+                    "                UNION         " +
+                    "               SELECT MAX(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+                    "                 FROM LEDGER" +
+                    "                GROUP BY CREDIT_ACC)" +
+                    "        GROUP BY ACC" +
+                    "               ) MIN_L " +
+                    " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+                    "   AND (L.DEBIT_ACC = A.ACC OR L.CREDIT_ACC = A.ACC) " +
+                    "   AND MIN_L.ACC = A.ACC" +
+                    "   AND A.ACC IN(SELECT ACC FROM ACCOUNT)"
                 ;
             /*  var sqlAccount =
 
@@ -268,7 +268,7 @@ var Main = {
                     var html = "";
                     var acc = new String();
                     var acc = result.rows.item(i).ACC;
-                    html = html +'<tr onclick="Account.setAccount('+result.rows.item(i)._ID+')">\n';
+                    html = html +'<tr class="accountRow"> onclick="Account.setAccountDialog('+result.rows.item(i)._ID+')">\n';
                     html = html +'<td>'+result.rows.item(i)._ID+'</td>\n';
                     html = html +'<td>'+result.rows.item(i).ACC+'</td>\n';
                     html = html +'<td>'+result.rows.item(i).BALANCE+'</td>\n';
@@ -276,8 +276,21 @@ var Main = {
                     $("#accountList > tbody").append(html);
                     $("#accountList").table("refresh");
                 }
+                $(".accountRow").on("taphold",function(el){
+                    $.mobile.changePage("#AccountPopup", {
+                        transition: 'pop',
+                        role: 'dialog'
+                    });
+
+                });
+
             },errorHandler);
         });
+
+    },
+    ShowAccounts : function()
+    {
+        Main.LoadAccounts();
         $.mobile.changePage("#Accounts");
     },
     LoadBanks: function (_el) {
@@ -288,7 +301,7 @@ var Main = {
 
                 //_el.html('');
                 $(".bankList").html('');
-                //$('#bankList').append('<option value=""></option>');
+                $('.bankList').append('<option value=""></option>');
                 for (var i = 0; i < result.rows.length; i++) {
                     //alert(result.rows.item(i).CODE+' '+result.rows.item(i).NAME);
                     var html = "";

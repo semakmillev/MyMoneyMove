@@ -1,4 +1,4 @@
-п»ї/**
+/**
  * Created with JetBrains WebStorm.
  * User: Golubitskiy_AO
  * Date: 12.04.16
@@ -101,7 +101,7 @@ var Balance = {
                             var realPrevBalance = parseFloat(result.rows.item(i).BALANCE) + parseFloat(result.rows.item(i).SUMMA_DEBIT);
                             //alert('Test :' + realPrevBalance+' - '+prevBalance);
                             if(prevBalance != realPrevBalance ){
-                                alert('РќРµ СЃРѕРІРїР°Р» РґРµР±РµС‚ - РґРѕ: '+prevBalance+' cСѓРјРјР°: '+result.rows.item(i).SUMMA_DEBIT+' РїРѕСЃР»Рµ: '+result.rows.item(i).BALANCE+' РґРѕР»Р¶РЅРѕ: ' + realPrevBalance);
+                                alert('Не совпал дебет - до: '+prevBalance+' cумма: '+result.rows.item(i).SUMMA_DEBIT+' после: '+result.rows.item(i).BALANCE+' должно: ' + realPrevBalance);
                                 var newDateNum = parseFloat(result.rows.item(i).NUM_DATE) - 10000;
                                 var dtNewDate = new Date(newDateNum);
                                 var newDate = Converter.DateToStr(dtNewDate,'DD.MM.YYYY');
@@ -120,7 +120,7 @@ var Balance = {
                                                            newDate,
                                                            newTime,
                                                            '',
-                                                           'РёСЃРїСЂР°РІР»РµРЅРёСЏ',
+                                                           'исправления',
                                                            difSumma,
                                                            result.rows.item(i).BALANCE_CUR,
                                                            realPrevBalance,
@@ -138,7 +138,7 @@ var Balance = {
                                         newDate,
                                         newTime,
                                         '',
-                                        'РёСЃРїСЂР°РІР»РµРЅРёСЏ',
+                                       'исправления',
                                         Math.abs(difSumma),
                                         result.rows.item(i).BALANCE_CUR,
                                         realPrevBalance,
@@ -149,7 +149,7 @@ var Balance = {
                         }
                         if(_acc == result.rows.item(i).KREDIT_ACC){
                             if(prevBalance != result.rows.item(i).BALANCE - result.rows.item(i).SUMMA_KREDIT ){
-                                alert('РќРµ СЃРѕРІРїР°Р» РєСЂРµРґРёС‚!');
+                                alert('Не совпал кредит!');
                             }
                         }
                     }
@@ -161,7 +161,16 @@ var Balance = {
         });
     },
     TieAccounts : function(_mainAccount,_childAccount){
+        sqlDebit = "UPDATE LEDGER SET DEBIT_ACC = ? WHERE DEBIT_ACC = ? AND SUMMA_DEBIT <> 0";
+        sqlCredit = "UPDATE LEDGER SET CREDIT_ACC = ? WHERE CREDIT_ACC = ? AND SUMMA_DEBIT <> 0";
+        //alert(_mainAccount+' '+_childAccount);
 
+        db.transaction(
+            function(tx){
+                tx.executeSql(sqlDebit,[_mainAccount,_childAccount],function(){},errorHandler);
+                tx.executeSql(sqlCredit,[_mainAccount,_childAccount],function(){},errorHandler);
+            }
+        );
 
     }
 

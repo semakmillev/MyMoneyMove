@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+
+<div data-role="page" id="Account">
+
+    <div data-role="header" data-theme="d">
+        <h1>Счет</h1>
+    </div>
+    <div data-role="content">
+        <div class="ui-field-contain">
+            <label for="nameAcc">Имя:</label>
+            <input type="text" name="nameAcc" id="nameAcc" value="" data-mini="true" />
+        </div>
+        <label for="codeAcc">Код в СМС</label>
+        <input type="text" name="codeAcc" id="codeAcc" value="" data-mini="true" />
+        <div class="ui-field-contain">
+            <label for="accCurList" class="select" >Валюта:</label>
+            <select name="accCurList" id="accCurList" text = "">
+                <option>RUR</option>
+                <option>USD</option>
+                <option>EUR</option>
+            </select>
+        </div>
+
+        <div class="ui-field-contain">
+            <label for="accTypeList" class="select" >Тип:</label>
+            <select name="accTypeList" id="accTypeList" text = "">
+                <option>Наличные</option>
+                <option>Дебетовая карта</option>
+                <option>Кредитная карта</option>
+                <option>Мультивалютная карта</option>
+                <option>Счет</option>
+                <option>Вклад</option>
+            </select>
+        </div>
+        <div class="ui-field-contain">
+            <label for="accBankList" class="select">Банк:</label>
+            <select class="bankList" name="accBankList" id="accBankList">
+            </select>
+        </div>
+        <div class="ui-field-contain">
+            <label for="accParentAcc" class="select">Счет</label>
+            <select class="accList" name="accParentAcc" id="accParentAcc">
+            </select>
+        </div>
+        <label for="dateAcc">Дата открытия:</label>
+        <input type="date" name="dateAcc" id="dateAcc" value=""  />
+
+    </div>
+    <div data-role="footer">
+        <a data-icon="check" class="ui-btn-forward ui-btn-right" data-iconpos="right" onclick="Account.SetAccount()" data-rel="dialog">Ok</a>
+    </div>
+</div>
+
+</body>
+</html>

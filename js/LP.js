@@ -281,6 +281,7 @@ function SetSMSTest()
     PreParseSms('1927^Alfa-Bank^1457114719801^5*8022; Pokupka; Uspeshno; Summa: 2147,00 RUR; Ostatok: 28927,56 RUR; RU/MOSCOW/DEZHURNAYA APTEKA; 04.03.2016 21:04:44');
     PreParseSms('1925^Alfa-Bank^1457105096610^5*8022; Pokupka; Uspeshno; Summa: 800,00 RUR; Ostatok: 31074,56 RUR; RU/MOSKVA/FORMULA KINO EVROPA; 04.03.2016 18:24:19');
     PreParseSms('1923^Alfa-Bank^1457103703148^5*8022; Pokupka; Uspeshno; Summa: 720,00 RUR; Ostatok: 31874,56 RUR; RU/MOSCOW/NOTKINO; 04.03.2016 18:01:04');
+    PreParseSms('1896^Alfa-Bank^1456940635614^5*8022; Pokupka; Uspeshno; Summa: 909,87 RUR; Ostatok: 34642,56 RUR; RU/MOSCOW/AUCHAN GAGARINSKY; 02.03.2016 20:43:11');
     PreParseSms('1922^Alfa-Bank^1457103673592^Dlya operacii v kinohod11 na summu 720.00 RUB vash odnorazoviy parol:982529. Ne soobshayte etot parol nikomu,v tom chisle sotrudnikam bankov.');
     PreParseSms('1921^Alfa-Bank^1457094524682^Parol dlya vhoda - 8167. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');
     PreParseSms('1919^Alfa-Bank^1457089884948^5*8022; Pokupka; Uspeshno; Summa: 770,00 RUR; Ostatok: 32594,56 RUR; RU/Moscow/WWW.RZD.RU; 04.03.2016 14:10:47');
@@ -291,12 +292,13 @@ function SetSMSTest()
     PreParseSms('1902^Alfa-Bank^1456997019241^Parol dlya vhoda - 7764. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');
     PreParseSms('1898^Alfa-Bank^1456943335178^5*8022; Pokupka; Uspeshno; Summa: 699,00 RUR; Ostatok: 33644,56 RUR; IE/BILL.XBOX.COM/MSFT *XBOX LIVE; 02.03.2016 21:28:22');
     PreParseSms('1897^Alfa-Bank^1456941994093^5*8022; Pokupka; Uspeshno; Summa: 299,00 RUR; Ostatok: 34343,56 RUR; RU/MOSKVA/TSVET-RYAD.DM.YLIANOVA; 02.03.2016 21:05:59');
-    PreParseSms('1896^Alfa-Bank^1456940635614^5*8022; Pokupka; Uspeshno; Summa: 909,87 RUR; Ostatok: 34642,56 RUR; RU/MOSCOW/AUCHAN GAGARINSKY; 02.03.2016 20:43:11');
+    PreParseSms('1889^Alfa-Bank^1456857988388^5*8022; Pokupka; Uspeshno; Summa: 578,00 RUR; Ostatok: 35552,43 RUR; NL/help.uber.com/Uber BV; 01.03.2016 21:45:54');
+
     PreParseSms('1895^Alfa-Bank^1456938381338^4*6832; Pokupka; Uspeshno; Summa: 461,00 RUR; Ostatok: 49499,89 RUR; RU/MOSKVA/OOO SOVREMENNIE PISHCHEVI; 02.03.2016 20:05:43');
     PreParseSms('1894^Alfa-Bank^1456931661763^Dlya perevoda s karti na kartu na summu 1230.00 RUB vash odnorazoviy parol:222861. Ne soobshayte etot parol nikomu,v tom chisle sotrudnikam bankov.');
     PreParseSms('1893^Alfa-Bank^1456931591600^Parol dlya vhoda - 2553. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');
     PreParseSms('1891^Alfa-Bank^1456910022232^Parol dlya vhoda - 3459. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');
-    PreParseSms('1889^Alfa-Bank^1456857988388^5*8022; Pokupka; Uspeshno; Summa: 578,00 RUR; Ostatok: 35552,43 RUR; NL/help.uber.com/Uber BV; 01.03.2016 21:45:54');
+
     PreParseSms('1888^Alfa-Bank^1456853764413^4*6832; Pokupka; Uspeshno; Summa: 408,50 RUR; Ostatok: 51190,89 RUR; RU/MOSCOW/MAGNOLIYA; 01.03.2016 20:35:31');
     PreParseSms('1883^Alfa-Bank^1456838437556^Parol dlya vhoda - 5058. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');
     PreParseSms('1879^Alfa-Bank^1456826520024^Parol dlya vhoda - 5831. Proverte adres banka - https://click.alfabank.ru/... Nikomu ne soobshayte parol, dazhe sotrudnikam banka.');

@@ -1,4 +1,4 @@
-var tmpRes;
+﻿var tmpRes;
 var currentBank;
 
 function AnalyzeLedger(){
@@ -8,6 +8,13 @@ function AnalyzeLedger(){
         var credit;
         sms.summa = sms.summa.replaceAll(',','.');
         sms.balance = sms.balance.replaceAll(',','.');
+        if(sms.summa.split('.').length>2){
+            sms.summa = sms.summa.replace('.','');
+        }
+        if(sms.balance.split('.').length>2){
+            sms.balance = sms.balance.replace('.','');
+        }
+
         if(sms.dir =='SPENDING'){
             debit = sms.acc;
             credit = 'OUT';
@@ -27,9 +34,9 @@ function AnalyzeLedger(){
         }
 
         if(i==arrParsedSMS.length - 1){
-            DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur,AnalyzeAcc());
+            DatabaseUnit.SetLedger(0,0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur,AnalyzeAcc());
         }else{
-            DatabaseUnit.SetLedger(0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur);
+            DatabaseUnit.SetLedger(0,0,debit,credit,sms.bank,sms.summa,sms.cur, sms._id,sms.tranDate,sms.tranTime,sms.place,'',sms.summa,sms.cur,sms.balance,sms.balanceCur);
         }
 
     //    (_id, _debitAcc, _creditAcc, _bank, _summaDebit, _curDebit, _smsId, _transDate,  _place, _comments, _summaCredit,_curCredit, _balance, _balanceCur)
@@ -230,9 +237,7 @@ function AnalyzeAcc()
             "        '' TYPE, " +
             "        BALANCE_CUR CUR, " +
             "        TRANS_DATE DATE_OPEN, " +
-            "        CASE WHEN L.CREDIT_ACC = MIN_L.ACC THEN L.BALANCE - L.SUMMA_CREDIT " +
-            "             WHEN L.DEBIT_ACC  = MIN_L.ACC THEN L.BALANCE + L.SUMMA_DEBIT " +
-            "        END START_BALANCE," +
+            "        0 START_BALANCE," +
             "        ''  COMMENTS " +
             "   FROM LEDGER L," +
             "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
@@ -248,12 +253,54 @@ function AnalyzeAcc()
             "               ) MIN_L " +
             " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
             "   AND (L.DEBIT_ACC = MIN_L.ACC OR L.CREDIT_ACC = MIN_L.ACC) " +
+            "   AND L.NEXT_ID = 0" +
+            "   AND MIN_L.ACC <> 'OUT'"+
+            "   AND MIN_L.ACC NOT IN(SELECT ACC FROM ACCOUNT)";
+
+    var insertSqlLedger =
+        "INSERT INTO LEDGER (NEXT_ID, DEBIT_ACC, CREDIT_ACC, BANK, SUMMA_DEBIT, CUR_DEBIT, " +
+            "                SMS_ID, TRANS_DATE,TRANS_TIME, NUM_DATE, PLACE, COMMENTS, " +
+            "                SUMMA_CREDIT, CUR_CREDIT, BALANCE, BALANCE_CUR) " +
+            " SELECT 0, " +
+            "        'OUT' DEBIT_ACC,   " +
+            "        MIN_L.ACC CREDIT_ACC," +
+            "        BANK BANK, " +
+            "        0,"+
+            "        L.CUR_DEBIT," +
+            "        '' SMS_ID," +
+            "        '01.01.2000' TRANS_DATE," +
+            "        '00:00:00' TRANS_TIME," +
+            "        0 NUM_DATE, " +
+            "        '' PLACE, " +
+            "        'СТАРТОВАЯ ПРОВОДКА' COMMENTS, " +
+            "        0 SUMMA_CREDIT,"+
+            "        L.CUR_CREDIT," +
+            "        0 BALANCE,"+
+            "        L.BALANCE_CUR " +
+            "   FROM LEDGER L," +
+            "       (SELECT MIN(NUM_DATE) NUM_DATE, ACC" +
+            "          FROM (                 " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, DEBIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY DEBIT_ACC" +
+            "                UNION         " +
+            "               SELECT MIN(NUM_DATE) NUM_DATE, CREDIT_ACC ACC" +
+            "                 FROM LEDGER" +
+            "                GROUP BY CREDIT_ACC)" +
+            "        GROUP BY ACC" +
+            "               ) MIN_L " +
+            " WHERE MIN_L.NUM_DATE = L.NUM_DATE" +
+            "   AND (L.DEBIT_ACC = MIN_L.ACC OR L.CREDIT_ACC = MIN_L.ACC) " +
+            "   AND L.NEXT_ID = 0" +
             "   AND MIN_L.ACC <> 'OUT'"+
             "   AND MIN_L.ACC NOT IN(SELECT ACC FROM ACCOUNT)";
 
     db.transaction(function (tx) {
+        tx.executeSql(insertSqlLedger, [], function(tx, result){}, errorHandler);
         tx.executeSql(insertSql, [], function(tx, result){}, errorHandler);
+
     },errorHandler,function(tx){
+        alert('Готово!');
         //var sql = ""
         /*
         tx.executeSql('SELECT * FROM ACCOUNT WHERE START_BALANCE != 0', [], function(tx, result){
